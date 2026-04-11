@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#4c1d95" />
+  <title>حُر — منصة العمل المستقل</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+
+  <!-- ═══ NAVBAR ═══ -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="{{ url_for('index') }}" class="logo">
+        <div class="logo-icon">
+          <!-- Soaring bird SVG -->
+          <svg viewBox="0 0 32 22" fill="white" xmlns="http://www.w3.org/2000/svg">
+            <path d="M16 11 C12 6 5 5 0 9 C6 8 11 11 16 18 C21 11 26 8 32 9 C27 5 20 6 16 11Z" opacity="0.95"/>
+            <path d="M16 7 C13 4 8 3 5 6 C8 5 12 7 16 11 C20 7 24 5 27 6 C24 3 19 4 16 7Z" opacity="0.55"/>
+          </svg>
+        </div>
+        <div class="logo-text-wrap">
+          <span class="logo-text">حُـر</span>
+          <span class="logo-sub">للعمل المستقل</span>
+        </div>
+      </a>
+      <div class="nav-links">
+        <a href="{{ url_for('index') }}"
+           class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">
+          استعراض الوظائف
+        </a>
+        <a href="{{ url_for('post_job') }}" class="nav-btn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          نشر وظيفة
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ═══ FLASH MESSAGES ═══ -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="alerts-wrapper">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <main>{% block content %}{% endblock %}</main>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer>
+    <div class="footer-top">
+      <div class="footer-brand">
+        <span class="footer-logo">حُر</span>
+        <p class="footer-tagline">منصة العمل المستقل العربية — تواصل مباشر، فرص حقيقية.</p>
+      </div>
+      <div class="footer-subscribe" id="footer-sub">
+        <p class="sub-label">اشترك لتصلك أحدث الوظائف</p>
+        <form action="{{ url_for('subscribe') }}" method="post" class="sub-form">
+          <input
+            type="email"
+            name="email"
+            placeholder="بريدك الإلكتروني"
+            required
+            class="sub-input"
+            dir="ltr"
+          />
+          <button type="submit" class="sub-btn">اشترك</button>
+        </form>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 منصة حُر — جميع الحقوق محفوظة</span>
+    </div>
+  </footer>
+
+</body>
+</html>
