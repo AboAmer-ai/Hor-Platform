@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-page">
+  <div class="form-card">
+    <div class="form-header">
+      <h2>نشر وظيفة جديدة</h2>
+      <p>أضف تفاصيل الوظيفة وسيصلك طلبات من أفضل المستقلين مباشرة</p>
+    </div>
+
+    <form action="{{ url_for('post_job') }}" method="post" class="job-form">
+
+      <!-- ── قسم صاحب العمل ── -->
+      <div class="form-section-title">معلومات صاحب العمل</div>
+
+      <div class="fields-row">
+        <div class="field-group">
+          <label for="employer">الاسم / اسم الشركة <span class="required-star">*</span></label>
+          <input type="text" id="employer" name="employer"
+            value="{{ form.get('employer', '') }}"
+            placeholder="مثال: أحمد العلي أو شركة نور" required />
+        </div>
+        <div class="field-group">
+          <label for="location">الموقع الجغرافي</label>
+          <input type="text" id="location" name="location"
+            value="{{ form.get('location', '') }}"
+            placeholder="مثال: الرياض، السعودية" />
+        </div>
+      </div>
+
+      <!-- WhatsApp field with country code -->
+      <div class="field-group">
+        <label>واتساب <span class="required-star">*</span></label>
+        <div class="intl-phone-input">
+          <select name="wa_code" class="country-code-select">
+            {% for code, label in arab_codes %}
+              <option value="{{ code }}" {% if form.get('wa_code', '+966') == code %}selected{% endif %}>
+                {{ label }} ({{ code }})
+              </option>
+            {% endfor %}
+          </select>
+          <input type="tel" name="wa_local"
+            value="{{ form.get('wa_local', '') }}"
+            placeholder="5XXXXXXXX"
+            required inputmode="tel" dir="ltr" />
+        </div>
+        <span class="field-hint">سيتواصل معك المستقلون عبر هذا الرقم مباشرة</span>
+      </div>
+
+      <!-- Phone field with country code -->
+      <div class="field-group">
+        <label>هاتف <span class="optional-label">(اختياري)</span></label>
+        <div class="intl-phone-input">
+          <select name="ph_code" class="country-code-select">
+            {% for code, label in arab_codes %}
+              <option value="{{ code }}" {% if form.get('ph_code', '+966') == code %}selected{% endif %}>
+                {{ label }} ({{ code }})
+              </option>
+            {% endfor %}
+          </select>
+          <input type="tel" name="ph_local"
+            value="{{ form.get('ph_local', '') }}"
+            placeholder="5XXXXXXXX"
+            inputmode="tel" dir="ltr" />
+        </div>
+      </div>
+
+      <div class="fields-row">
+        <div class="field-group">
+          <label for="email">البريد الإلكتروني <span class="optional-label">(اختياري)</span></label>
+          <input type="email" id="email" name="email"
+            value="{{ form.get('email', '') }}"
+            placeholder="example@email.com" dir="ltr" />
+        </div>
+        <div class="field-group">
+          <label for="website">رابط الموقع <span class="optional-label">(اختياري)</span></label>
+          <input type="url" id="website" name="website"
+            value="{{ form.get('website', '') }}"
+            placeholder="https://your-site.com" dir="ltr" />
+        </div>
+      </div>
+
+      <div class="form-divider"></div>
+
+      <!-- ── تفاصيل الوظيفة ── -->
+      <div class="form-section-title">تفاصيل الوظيفة</div>
+
+      <div class="field-group">
+        <label for="title">عنوان الوظيفة <span class="required-star">*</span></label>
+        <input type="text" id="title" name="title"
+          value="{{ form.get('title', '') }}"
+          placeholder="مثال: تصميم واجهة تطبيق جوال" required />
+      </div>
+
+      <div class="fields-row">
+        <div class="field-group">
+          <label for="category">التصنيف <span class="required-star">*</span></label>
+          <select id="category" name="category" required>
+            <option value="" disabled {% if not form.get('category') %}selected{% endif %}>اختر...</option>
+            {% for cat in categories %}
+              <option value="{{ cat }}" {% if form.get('category') == cat %}selected{% endif %}>{{ cat }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label for="budget">الميزانية <span class="required-star">*</span></label>
+          <div class="budget-input">
+            <input type="number" id="budget" name="budget"
+              value="{{ form.get('budget', '') }}"
+              placeholder="0" min="1" required />
+            <select name="currency" class="currency-select">
+              {% for code, label in currencies %}
+                <option value="{{ code }}" {% if form.get('currency', 'ر.س') == code %}selected{% endif %}>
+                  {{ code }} — {{ label }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label for="description">وصف الوظيفة <span class="required-star">*</span></label>
+        <textarea id="description" name="description" rows="5"
+          placeholder="اشرح بالتفصيل ما تحتاجه، المهارات المطلوبة، والمخرجات المتوقعة..."
+          required>{{ form.get('description', '') }}</textarea>
+      </div>
+
+      <!-- Verification hint -->
+      <div class="verify-hint">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        تحصل وظيفتك على علامة <strong>✅ موثوقة</strong> تلقائياً عند تعبئة كل الحقول (واتساب + هاتف + بريد صحيح + راتب موجب).
+      </div>
+
+      <div class="form-actions">
+        <a href="{{ url_for('index') }}" class="btn-cancel">إلغاء</a>
+        <button type="submit" class="btn-submit">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          نشر الوظيفة
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
