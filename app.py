@@ -13,6 +13,7 @@ BASE_DIR    = os.path.dirname(os.path.abspath(__file__))
 DB_PATH     = os.path.join(BASE_DIR, "jobs.db")
 UPLOAD_DIR  = os.path.join(BASE_DIR, "static", "uploads", "cvs")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+init_db()
 
 CATEGORIES = ["برمجة", "تصميم", "كتابة", "تسويق", "ترجمة", "فيديو وصوت", "أخرى"]
 
@@ -359,7 +360,7 @@ def subscribe():
 
 # هكذا سيكون شكل الدالة الأخيرة في الكود المدمج
 if __name__ == "__main__":
-    init_db()
+    #init_db()
     # جلب المنفذ من النظام أو استخدام 5000 كخيار افتراضي
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
