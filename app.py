@@ -13,7 +13,6 @@ BASE_DIR    = os.path.dirname(os.path.abspath(__file__))
 DB_PATH     = os.path.join(BASE_DIR, "jobs.db")
 UPLOAD_DIR  = os.path.join(BASE_DIR, "static", "uploads", "cvs")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
-init_db()
 
 CATEGORIES = ["برمجة", "تصميم", "كتابة", "تسويق", "ترجمة", "فيديو وصوت", "أخرى"]
 
@@ -188,7 +187,7 @@ def init_db():
 
     db.commit()
     db.close()
-
+init_db()
 
 # ─── Routes ─────────────────────────────────────────────
 
