@@ -1,4 +1,4 @@
-import os
+locationiont os
 import re
 import sqlite3
 from datetime import datetime
@@ -180,7 +180,7 @@ def init_db():
         db.executemany(
             """INSERT INTO jobs
                (title,description,budget,currency,category,employer,
-                whatsapp,email,phone,website,location)
+                whatsapp,email,phone,website,location,'active')
                VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
             sample,
         )
