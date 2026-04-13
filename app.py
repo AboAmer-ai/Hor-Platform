@@ -10,7 +10,7 @@ app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key")
 app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024  # 5 MB max upload
 
 BASE_DIR    = os.path.dirname(os.path.abspath(__file__))
-DB_PATH     = os.path.join(BASE_DIR, "jobs.db")
+DB_PATH = os.path.join(BASE_DIR, "jobs_new.db")
 UPLOAD_DIR  = os.path.join(BASE_DIR, "static", "uploads", "cvs")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
