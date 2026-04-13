@@ -122,6 +122,7 @@ def init_db():
             phone       TEXT,
             website     TEXT,
             location    TEXT,
+            status      TEXT DEFAULT 'active',
             created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     """)
@@ -155,6 +156,7 @@ def init_db():
         ("phone",    "TEXT"),
         ("website",  "TEXT"),
         ("location", "TEXT"),
+        ("status",   "TEXT"),
     ]:
         try:
             db.execute(f"ALTER TABLE jobs ADD COLUMN {col} {ctype}")
@@ -167,26 +169,27 @@ def init_db():
             ("تصميم شعار احترافي",
              "أحتاج إلى مصمم محترف لإنشاء شعار عصري لشركة ناشئة في مجال التقنية. يجب أن يكون الشعار بسيطاً وقابلاً للتوسع.",
              "500", "ر.س", "تصميم", "محمد العمري",
-             "966501234567", "mohammed@example.com", "966501234567", "https://example.com", "الرياض"),
+             "966501234567", "mohammed@example.com", "966501234567", "https://example.com", "الرياض", "active"),
             ("تطوير موقع إلكتروني بـ React",
              "مطلوب مطور واجهة أمامية لبناء موقع متجر إلكتروني باستخدام React وتكامله مع واجهة برمجية موجودة.",
              "3000", "ر.س", "برمجة", "سارة الأحمدي",
-             "966509876543", "sara@techco.sa", "966509876543", "", "جدة"),
+             "966509876543", "sara@techco.sa", "966509876543", "", "جدة", "active"),
             ("كتابة محتوى تسويقي",
              "أبحث عن كاتب محتوى متخصص في التسويق الرقمي لكتابة 10 مقالات لمدونة شركتي بأسلوب إبداعي وجذاب.",
              "800", "ر.س", "كتابة", "فيصل القحطاني",
-             "966555112233", "faisal@example.com", "966555112233", "https://faisal-blog.com", "الدمام"),
+             "966555112233", "faisal@example.com", "966555112233", "https://faisal-blog.com", "الدمام","active"),
         ]
         db.executemany(
             """INSERT INTO jobs
                (title,description,budget,currency,category,employer,
-                whatsapp,email,phone,website,location,'active')
-               VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
+                whatsapp,email,phone,website,location,status)
+               VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
             sample,
         )
 
     db.commit()
     db.close()
+
 init_db()
 
 # ─── Routes ─────────────────────────────────────────────
@@ -269,9 +272,9 @@ def post_job():
             """INSERT INTO jobs
                (title,description,budget,currency,category,employer,
                 whatsapp,email,phone,website,location,status)
-               VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
+               VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
             (title, description, budget, currency, category, employer,
-             wa_digits, email, ph_digits, website, location),
+             wa_digits, email, ph_digits, website, location,'active'),
         )
         db.commit()
         flash("تم نشر وظيفتك بنجاح! 🎉", "success")
@@ -359,7 +362,7 @@ def subscribe():
 
 # هكذا سيكون شكل الدالة الأخيرة في الكود المدمج
 if __name__ == "__main__":
-    #init_db()
+    
     # جلب المنفذ من النظام أو استخدام 5000 كخيار افتراضي
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
