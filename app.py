@@ -1,4 +1,4 @@
-import os
+locationiont os
 import re
 import sqlite3
 from datetime import datetime
@@ -268,7 +268,7 @@ def post_job():
         db.execute(
             """INSERT INTO jobs
                (title,description,budget,currency,category,employer,
-                whatsapp,email,phone,website,location)
+                whatsapp,email,phone,website,location,status)
                VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
             (title, description, budget, currency, category, employer,
              wa_digits, email, ph_digits, website, location),
