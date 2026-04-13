@@ -190,7 +190,6 @@ def init_db():
     db.commit()
     db.close()
 
-init_db()
 
 # ─── Routes ─────────────────────────────────────────────
 
@@ -362,7 +361,7 @@ def subscribe():
 
 # هكذا سيكون شكل الدالة الأخيرة في الكود المدمج
 if __name__ == "__main__":
-    
+    init_db()
     # جلب المنفذ من النظام أو استخدام 5000 كخيار افتراضي
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
