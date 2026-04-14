@@ -6,6 +6,11 @@ from flask import Flask, render_template, request, redirect, url_for, flash, g
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
+@app.before_request
+def ensure_db():
+    if not hasattr(g, "db_initialized"):
+        init_db(print("🔥 INIT DB CALLED"))
+        g.db_initialized = True
 app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key")
 app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024  # 5 MB max upload
 
@@ -275,7 +280,7 @@ def subscribe():
 
 if __name__ == "__main__":
     with app.app_context():
-        init_db()
+        init_db()   # ← هذا أهم سطر في كل المشروع
 
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
