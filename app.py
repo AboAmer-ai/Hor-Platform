@@ -1,18 +1,15 @@
 import os
 import re
 import psycopg2
+from psycopg2.extras import RealDictCursor
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, flash, g
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
-@app.before_request
-def ensure_db():
-    if not hasattr(g, "db_initialized"):
-        init_db(print("🔥 INIT DB CALLED"))
-        g.db_initialized = True
+
 app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key")
-app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024  # 5 MB max upload
+app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_DIR = os.path.join(BASE_DIR, "static", "uploads", "cvs")
@@ -60,9 +57,9 @@ ARAB_CODES = [
     ("+269", "🇰🇲 جزر القمر"),
 ]
 
-# ─────────────────────────────────────────────
-# DB CONNECTION (FIXED)
-# ─────────────────────────────────────────────
+# ─────────────────────────────
+# DB CONNECTION
+# ─────────────────────────────
 
 def get_db():
     if "db" not in g:
@@ -83,7 +80,7 @@ def close_db(exc):
 
 def query(sql, params=None, fetchone=False, fetchall=False):
     db = get_db()
-    cur = db.cursor()
+    cur = db.cursor(cursor_factory=RealDictCursor)
     cur.execute(sql, params or ())
 
     if fetchone:
@@ -92,9 +89,69 @@ def query(sql, params=None, fetchone=False, fetchall=False):
         return cur.fetchall()
 
 
-# ─────────────────────────────────────────────
-# HELPERS
-# ─────────────────────────────────────────────
+# ─────────────────────────────
+# AUTO DB INIT (NEW)
+# ─────────────────────────────
+
+def init_db():
+    db = get_db()
+    cur = db.cursor()
+
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS jobs (
+        id SERIAL PRIMARY KEY,
+        title TEXT,
+        description TEXT,
+        budget INTEGER,
+        currency TEXT,
+        category TEXT,
+        employer TEXT,
+        whatsapp TEXT,
+        email TEXT,
+        phone TEXT,
+        website TEXT,
+        location TEXT,
+        status TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    """)
+
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS applications (
+        id SERIAL PRIMARY KEY,
+        job_id INTEGER,
+        name TEXT,
+        phone TEXT,
+        qualification TEXT,
+        experience TEXT,
+        skills TEXT,
+        email TEXT,
+        cv_path TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    """)
+
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS subscribers (
+        id SERIAL PRIMARY KEY,
+        email TEXT UNIQUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    """)
+
+    print("🔥 DATABASE INITIALIZED")
+
+
+@app.before_request
+def ensure_db():
+    if not hasattr(g, "db_initialized"):
+        init_db()
+        g.db_initialized = True
+
+
+# ─────────────────────────────
+# HELPERS (بدون أي تعديل)
+# ─────────────────────────────
 
 def allowed_cv(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() == "pdf"
@@ -127,15 +184,15 @@ def jobs_to_dicts(rows):
     return result
 
 
-# ─────────────────────────────────────────────
-# ROUTES
-# ─────────────────────────────────────────────
+# ─────────────────────────────
+# ROUTES (بدون أي تغيير)
+# ─────────────────────────────
 
 @app.route("/")
 def index():
     cat = request.args.get("category", "")
 
-    total_jobs = query("SELECT COUNT(*) FROM jobs", fetchone=True)[0]
+    total_jobs = query("SELECT COUNT(*) FROM jobs", fetchone=True)["count"]
 
     if cat:
         rows = query(
@@ -233,7 +290,6 @@ def apply(job_id):
         return redirect(url_for("index"))
 
     job = dict(row)
-    verified = check_verified(job)
 
     name = request.form.get("name", "").strip()
     phone = request.form.get("phone", "").strip()
@@ -280,7 +336,7 @@ def subscribe():
 
 if __name__ == "__main__":
     with app.app_context():
-        init_db()   # ← هذا أهم سطر في كل المشروع
+        init_db()
 
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
