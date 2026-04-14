@@ -107,14 +107,12 @@ def jobs_to_dicts(rows):
         result.append(d)
     return result
 
-
 def init_db():
-    db = sqlite3.connect(DB_PATH)
-    db.row_factory = sqlite3.Row
+    db = get_db()
 
     db.execute("""
-        CREATE TABLE IF NOT EXISTS jobs (
-            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    CREATE TABLE IF NOT EXISTS jobs (
+            id SERIAL PRIMARY KEY,
             title       TEXT NOT NULL,
             description TEXT NOT NULL,
             budget      TEXT NOT NULL,
@@ -128,8 +126,9 @@ def init_db():
             location    TEXT,
             status      TEXT DEFAULT 'active',
             created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
+    )
     """)
+
 
     db.execute("""
         CREATE TABLE IF NOT EXISTS applications (
@@ -194,8 +193,6 @@ def init_db():
     db.commit()
     db.close()
 
-with app.app_context():
-    init_db()
 
 # ─── Routes ─────────────────────────────────────────────
 
@@ -368,6 +365,5 @@ def subscribe():
 # هكذا سيكون شكل الدالة الأخيرة في الكود المدمج
 if __name__ == "__main__":
     init_db()
-    # جلب المنفذ من النظام أو استخدام 5000 كخيار افتراضي
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
