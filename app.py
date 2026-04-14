@@ -1,5 +1,6 @@
 import os
 import re
+import psycopg2
 import sqlite3
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, flash, g
@@ -61,8 +62,11 @@ ARAB_CODES = [
 
 def get_db():
     if "db" not in g:
-        g.db = sqlite3.connect(DB_PATH)
-        g.db.row_factory = sqlite3.Row
+        g.db = psycopg2.connect(
+            os.environ.get("DATABASE_URL"),
+            sslmode="require"
+        )
+        g.db.autocommit = True
     return g.db
 
 
