@@ -1,10 +1,12 @@
 import os
 import re
 import psycopg2
+
 from psycopg2.extras import RealDictCursor
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, flash, g
 from werkzeug.utils import secure_filename
+from ai_agent.agent import run_agent
 
 app = Flask(__name__)
 
@@ -332,6 +334,22 @@ def subscribe():
         flash("مشترك مسبقاً", "error")
 
     return redirect(url_for("index"))
+
+# ==============================
+# AI AGENT ROUTE
+# ==============================
+
+@app.route("/ai", methods=["POST"])
+def ai_chat():
+
+    user_message = request.form.get("message")
+
+    reply = run_agent(
+        user_id="guest",
+        message=user_message
+    )
+
+    return {"reply": reply}
 
 
 if __name__ == "__main__":
