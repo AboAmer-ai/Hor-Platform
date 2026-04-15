@@ -1,9 +1,38 @@
-from app import db
+import os
+import psycopg2
 
 
+# =========================
+# DB CONNECTION
+# =========================
+def get_db():
+    conn = psycopg2.connect(
+        os.environ.get("DATABASE_URL"),
+        sslmode="require"
+    )
+    conn.autocommit = True
+    return conn
+
+
+# =========================
+# GET JOBS
+# =========================
 def get_jobs():
 
-    jobs = Job.query.all()
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT title, employer, location
+        FROM jobs
+        ORDER BY id DESC
+        LIMIT 20
+    """)
+
+    jobs = cur.fetchall()
+
+    cur.close()
+    conn.close()
 
     if not jobs:
         return "لا توجد وظائف منشورة حالياً."
@@ -11,33 +40,63 @@ def get_jobs():
     result = []
 
     for job in jobs:
-        result.append(
-            f"{job.title} - {job.company} - {job.location}"
-        )
+        title, employer, location = job
+        result.append(f"{title} - {employer} - {location}")
 
     return "\n".join(result)
 
 
+# =========================
+# ADD JOB
+# =========================
 def add_job(title, company, location, description):
 
-    new_job = Job(
-        title=title,
-        company=company,
-        location=location,
-        description=description
-    )
+    conn = get_db()
+    cur = conn.cursor()
 
-    db.session.add(new_job)
-    db.session.commit()
+    cur.execute("""
+        INSERT INTO jobs (title, employer, location, description, budget, currency, category, whatsapp, email, phone, website, status)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 'active')
+    """, (
+        title,
+        company,
+        location,
+        description,
+        "0",
+        "ر.س",
+        "أخرى",
+        "",
+        "",
+        "",
+        ""
+    ))
+
+    cur.close()
+    conn.close()
 
     return "✅ تم نشر الوظيفة بنجاح"
 
 
+# =========================
+# SEARCH JOBS
+# =========================
 def search_jobs(keyword):
 
-    jobs = Job.query.filter(
-        Job.title.contains(keyword)
-    ).all()
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT title, employer
+        FROM jobs
+        WHERE title ILIKE %s
+        ORDER BY id DESC
+        LIMIT 20
+    """, (f"%{keyword}%",))
+
+    jobs = cur.fetchall()
+
+    cur.close()
+    conn.close()
 
     if not jobs:
         return "لم يتم العثور على نتائج."
@@ -45,8 +104,7 @@ def search_jobs(keyword):
     result = []
 
     for job in jobs:
-        result.append(
-            f"{job.title} - {job.company}"
-        )
+        title, employer = job
+        result.append(f"{title} - {employer}")
 
     return "\n".join(result)
