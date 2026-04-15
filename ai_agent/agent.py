@@ -2,7 +2,7 @@ import os
 from openai import OpenAI
 from .prompts import SYSTEM_PROMPT
 from .memory import save_memory, get_memory
-
+from .tools import get_jobs, add_job, search_jobs
 # إنشاء العميل
 client = OpenAI(
     api_key=os.environ.get("OPENAI_API_KEY")
