@@ -2,177 +2,291 @@
 
 {% block content %}
 
-<!-- HERO -->
+<!-- ═══ HERO ═══ -->
 <section class="hero">
+  <div class="hero-shapes" aria-hidden="true">
+    <div class="hero-shape s1"></div>
+    <div class="hero-shape s2"></div>
+    <div class="hero-shape s3"></div>
+  </div>
   <div class="hero-inner">
-
     <div class="hero-badge">
+      <span class="badge-dot"></span>
       منصة موثوقة للمستقلين العرب
     </div>
-
     <h1 class="hero-title">
-      منصة حُر
-      <span class="hero-subtitle">حيث تلتقي المهارة بالفرصة</span>
+      منصة <span class="brand-inline">حُر</span>
+      <span class="hero-title-line2">حيث تلتقي المهارة بالفرصة</span>
     </h1>
-
-    <p class="hero-desc">
-      اكتشف فرص عمل حقيقية وتواصل مباشرة مع أصحاب المشاريع بدون وسطاء
+    <p class="hero-sub">
+      اكتشف فرص عمل حقيقية في التصميم، البرمجة، الكتابة، والمزيد.<br class="hide-sm"/>
+      تواصل مع أصحاب العمل مباشرة — بدون وسيط.
     </p>
-
-    <div class="hero-actions">
-      <a href="{{ url_for('post_job') }}" class="btn-primary">➕ انشر وظيفة</a>
-      <a href="#jobs" class="btn-secondary">استعرض الوظائف</a>
+    <div class="hero-cta">
+      <a href="{{ url_for('post_job') }}" class="hero-btn-primary">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        انشر وظيفتك الآن
+      </a>
+      <a href="#jobs-anchor" class="hero-btn-secondary">استعرض الوظائف ↓</a>
     </div>
-
     <div class="hero-stats">
-      <div>{{ total_jobs }} وظيفة</div>
-      <div>{{ categories | length }} تصنيف</div>
-      <div>مجاني 100%</div>
+      <div class="stat">
+        <span class="stat-num">{{ total_jobs }}+</span>
+        <span class="stat-label">وظيفة نشطة</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat">
+        <span class="stat-num">{{ categories | length }}</span>
+        <span class="stat-label">تخصصات</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat">
+        <span class="stat-num">100%</span>
+        <span class="stat-label">مجاني</span>
+      </div>
     </div>
-
   </div>
 </section>
 
-
-<!-- CONTENT -->
-<div class="content-wrapper" id="jobs">
-
-  <!-- FILTERS -->
+<!-- ═══ CONTENT ═══ -->
+<div class="content-wrapper" id="jobs-anchor">
   <aside class="filters">
-    <h3>التصنيفات</h3>
-    <ul>
+    <h3 class="filter-title">التصنيفات</h3>
+    <ul class="category-list">
       <li>
-        <a href="{{ url_for('index') }}" class="{% if not selected_category %}active{% endif %}">
-          الكل
+        <a href="{{ url_for('index') }}" class="cat-link {% if not selected_category %}active{% endif %}">
+          🗂️ الكل
         </a>
       </li>
-
       {% for cat in categories %}
-      <li>
-        <a href="{{ url_for('index', category=cat) }}"
-           class="{% if selected_category == cat %}active{% endif %}">
-          {{ category_icons[cat] }} {{ cat }}
-        </a>
-      </li>
+        <li>
+          <a href="{{ url_for('index', category=cat) }}"
+             class="cat-link {% if selected_category == cat %}active{% endif %}">
+            {{ category_icons[cat] }} {{ cat }}
+          </a>
+        </li>
       {% endfor %}
     </ul>
   </aside>
 
-
-  <!-- JOBS -->
   <div class="jobs-section">
-
     <div class="section-header">
-      <h2>
-        {% if selected_category %}
-          {{ selected_category }}
-        {% else %}
-          أحدث الوظائف
-        {% endif %}
-      </h2>
-      <span>{{ jobs | length }} وظيفة</span>
+      {% if selected_category %}
+        <h2>{{ category_icons.get(selected_category, '') }} {{ selected_category }}</h2>
+        <a href="{{ url_for('index') }}" class="clear-filter">× مسح</a>
+      {% else %}
+        <h2>أحدث الوظائف</h2>
+        <span class="jobs-count">{{ jobs | length }} وظيفة</span>
+      {% endif %}
     </div>
 
     {% if jobs %}
-    <div class="jobs-grid">
+      <div class="jobs-grid">
+        {% for job in jobs %}
+          <div class="job-card {% if job.verified %}job-card--verified{% endif %}">
 
-      {% for job in jobs %}
-      <div class="job-card {% if job.verified %}verified{% endif %}">
+            <!-- Top row -->
+            <div class="job-card-top">
+              <span class="job-category">{{ category_icons.get(job.category, '📁') }} {{ job.category }}</span>
+              <div class="job-top-right">
+                {% if job.verified %}
+                  <span class="verified-badge" title="وظيفة موثوقة — تم التحقق من بيانات صاحب العمل">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    موثوقة
+                  </span>
+                {% endif %}
+                <span class="job-budget">{{ job.budget }} {{ job.currency }}</span>
+              </div>
+            </div>
 
-        <!-- TOP -->
-        <div class="job-top">
-          <span>{{ category_icons.get(job.category, '📁') }} {{ job.category }}</span>
-          <span>{{ job.budget }} {{ job.currency }}</span>
-        </div>
+            <!-- Title & description -->
+            <h3 class="job-title">{{ job.title }}</h3>
+            <p class="job-desc">{{ job.description }}</p>
 
-        <!-- TITLE -->
-        <h3 class="job-title">{{ job.title }}</h3>
+            <!-- Employer & location -->
+            <div class="job-meta-row">
+              <span class="job-employer-chip">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                {{ job.employer }}
+              </span>
+              {% if job.location %}
+                <span class="job-location-chip">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                  {{ job.location }}
+                </span>
+              {% endif %}
+            </div>
 
-        <!-- DESCRIPTION -->
-        <p class="job-desc">{{ job.description[:120] }}...</p>
+            <!-- Action row -->
+            <div class="action-row">
+              <!-- Quick Apply -->
+              <button
+                class="action-btn action-apply {% if job.verified %}action-apply--verified{% endif %}"
+                onclick="openApply({{ job.id }}, {{ job.title | tojson }}, {{ 'true' if job.verified else 'false' }})"
+                title="تقديم سريع"
+              >
+                <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/>
+                </svg>
+                <span>تقديم</span>
+              </button>
 
-        <!-- ACTIONS -->
-        <div class="job-actions">
+              <!-- WhatsApp -->
+              <a href="https://wa.me/{{ job.whatsapp }}" target="_blank" rel="noopener noreferrer"
+                 class="action-btn action-wa" title="واتساب">
+                <svg class="action-icon" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                  <path d="M12 0C5.373 0 0 5.373 0 12c0 2.096.539 4.065 1.482 5.782L.054 23.272a.75.75 0 0 0 .917.985l5.686-1.492A11.944 11.944 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.886 0-3.655-.51-5.18-1.399l-.371-.22-3.377.886.898-3.285-.242-.382A9.956 9.956 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+                </svg>
+                <span>واتساب</span>
+              </a>
 
-          <button class="btn-apply"
-            onclick="openApply({{ job.id }}, {{ job.title | tojson }}, {{ 'true' if job.verified else 'false' }})">
-            قدم الآن
-          </button>
+              {% if job.phone %}
+              <a href="tel:+{{ job.phone }}" class="action-btn action-phone" title="اتصال">
+                <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.59 1h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.96a16 16 0 0 0 6.13 6.13l1.12-.84a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                </svg>
+                <span>اتصال</span>
+              </a>
+              {% endif %}
 
-          <a class="btn-wa" href="https://wa.me/{{ job.whatsapp }}" target="_blank">
-            واتساب
-          </a>
+              {% if job.email %}
+              <a href="mailto:{{ job.email }}" class="action-btn action-email" title="{{ job.email }}">
+                <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                  <polyline points="22,6 12,13 2,6"/>
+                </svg>
+                <span>إيميل</span>
+              </a>
+              {% endif %}
 
-          {% if job.phone %}
-          <a class="btn-phone" href="tel:+{{ job.phone }}">
-            اتصال
-          </a>
-          {% endif %}
+              {% if job.website %}
+              <a href="{{ job.website }}" target="_blank" rel="noopener noreferrer"
+                 class="action-btn action-web" title="{{ job.website }}">
+                <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="2" y1="12" x2="22" y2="12"/>
+                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                </svg>
+                <span>موقع</span>
+              </a>
+              {% endif %}
+            </div>
 
-          {% if job.email %}
-          <a class="btn-email" href="mailto:{{ job.email }}">
-            إيميل
-          </a>
-          {% endif %}
-
-          {% if job.website %}
-          <a class="btn-web" href="{{ job.website }}" target="_blank">
-            موقع
-          </a>
-          {% endif %}
-
-        </div>
-
+          </div>
+        {% endfor %}
       </div>
-      {% endfor %}
+    {% else %}
+      <div class="empty-state">
+        <div class="empty-icon">🔍</div>
+        <h3>لا توجد وظائف في هذا التصنيف</h3>
+        <p>جرّب تصنيفاً آخر أو <a href="{{ url_for('index') }}">اعرض جميع الوظائف</a></p>
+      </div>
+    {% endif %}
+  </div>
+</div>
 
+<!-- ═══ QUICK APPLY MODAL ═══ -->
+<div class="modal-backdrop" id="applyBackdrop" onclick="closeApply(event)" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title-wrap">
+        <h2 class="modal-title" id="modalTitle">تقديم سريع</h2>
+        <p class="modal-subtitle" id="modalJobTitle">—</p>
+      </div>
+      <button class="modal-close" onclick="closeApply()" aria-label="إغلاق">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
     </div>
 
-    {% else %}
-      <p>لا توجد وظائف حالياً</p>
-    {% endif %}
+    <form id="applyForm" method="post" enctype="multipart/form-data" class="modal-form">
 
-  </div>
-</div>
-
-
-<!-- APPLY MODAL -->
-<div class="modal-backdrop" id="applyBackdrop" onclick="closeApply(event)">
-  <div class="modal" onclick="event.stopPropagation()">
-
-    <h2 id="modalTitle">تقديم سريع</h2>
-    <p id="modalJobTitle"></p>
-
-    <form id="applyForm" method="POST">
-
-      <input type="text" name="name" placeholder="الاسم" required>
-      <input type="tel" name="phone" placeholder="الهاتف" required>
-      <input type="email" name="email" placeholder="الإيميل" required>
-
-      <textarea name="skills" placeholder="المهارات"></textarea>
-
-      <div class="modal-actions">
-        <button type="button" onclick="closeApply()">إغلاق</button>
-        <button type="submit">إرسال</button>
+      <div class="modal-fields-row">
+        <div class="field-group">
+          <label for="app_name">الاسم الكامل <span class="required-star">*</span></label>
+          <input type="text" id="app_name" name="name" placeholder="مثال: خالد العبدالله" required />
+        </div>
+        <div class="field-group">
+          <label for="app_phone">رقم الهاتف <span class="required-star">*</span></label>
+          <input type="tel" id="app_phone" name="phone" placeholder="+966XXXXXXXXX" required inputmode="tel" dir="ltr" />
+        </div>
       </div>
 
-    </form>
+      <div class="modal-fields-row">
+        <div class="field-group">
+          <label for="app_email">البريد الإلكتروني <span class="required-star">*</span></label>
+          <input type="email" id="app_email" name="email" placeholder="example@email.com" required dir="ltr" />
+        </div>
+        <div class="field-group">
+          <label for="app_qual">المؤهل الدراسي</label>
+          <input type="text" id="app_qual" name="qualification" placeholder="مثال: بكالوريوس حاسب" />
+        </div>
+      </div>
 
+      <div class="field-group">
+        <label for="app_exp">سنوات الخبرة</label>
+        <input type="text" id="app_exp" name="experience" placeholder="مثال: 3 سنوات في تطوير الويب" />
+      </div>
+
+      <div class="field-group">
+        <label for="app_skills">المهارات الرئيسية</label>
+        <input type="text" id="app_skills" name="skills" placeholder="مثال: Python, React, Figma" dir="ltr" />
+      </div>
+
+      <div class="field-group cv-group" id="cvGroup">
+        <label for="app_cv">
+          السيرة الذاتية (PDF)
+          <span id="cvRequired" class="required-star" style="display:none"> * إلزامي</span>
+          <span id="cvOptional" class="optional-label"> (اختياري)</span>
+        </label>
+        <label class="cv-upload-area" for="app_cv">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <span id="cvLabel">اسحب ملف PDF هنا أو اضغط للاختيار</span>
+        </label>
+        <input type="file" id="app_cv" name="cv" accept=".pdf" class="cv-input" onchange="updateCvLabel(this)" />
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" onclick="closeApply()">إلغاء</button>
+        <button type="submit" class="btn-submit">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/></svg>
+          إرسال الطلب
+        </button>
+      </div>
+    </form>
   </div>
 </div>
 
-
 <script>
-function openApply(id, title, verified){
-  document.getElementById("applyForm").action = "/apply/" + id;
-  document.getElementById("modalJobTitle").innerText = title;
-  document.getElementById("applyBackdrop").style.display = "flex";
+function openApply(jobId, jobTitle, isVerified) {
+  document.getElementById('applyForm').action = '/apply/' + jobId;
+  document.getElementById('modalJobTitle').textContent = jobTitle;
+  document.getElementById('cvRequired').style.display = isVerified ? 'inline' : 'none';
+  document.getElementById('cvOptional').style.display = isVerified ? 'none' : 'inline';
+  document.getElementById('app_cv').required = isVerified;
+  document.getElementById('applyBackdrop').classList.add('modal-open');
+  document.body.style.overflow = 'hidden';
 }
 
-function closeApply(e){
-  if(e && e.target !== document.getElementById("applyBackdrop")) return;
-  document.getElementById("applyBackdrop").style.display = "none";
+function closeApply(event) {
+  if (event && event.target !== document.getElementById('applyBackdrop')) return;
+  document.getElementById('applyBackdrop').classList.remove('modal-open');
+  document.body.style.overflow = '';
+  document.getElementById('applyForm').reset();
+  document.getElementById('cvLabel').textContent = 'اسحب ملف PDF هنا أو اضغط للاختيار';
 }
+
+function updateCvLabel(input) {
+  const label = document.getElementById('cvLabel');
+  label.textContent = input.files.length ? input.files[0].name : 'اسحب ملف PDF هنا أو اضغط للاختيار';
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    document.getElementById('applyBackdrop').classList.remove('modal-open');
+    document.body.style.overflow = '';
+  }
+});
 </script>
 
 {% endblock %}
