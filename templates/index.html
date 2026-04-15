@@ -121,8 +121,9 @@
             <div class="action-row">
               <!-- Quick Apply -->
               <button
-                class="action-btn action-apply {% if job.verified %}action-apply--verified{% endif %}"
-                onclick="openApply({{ job.id }}, {{ job.title | tojson }}, {{ 'true' if job.verified else 'false' }})"
+  class="action-btn action-apply {% if job.verified %}action-apply--verified{% endif %}"
+  onclick='openApply({{ job.id }}, {{ job.title|tojson|safe }}, {{ job.verified|tojson }})'
+>
                 title="تقديم سريع"
               >
                 <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
