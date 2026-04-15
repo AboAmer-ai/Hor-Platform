@@ -3,7 +3,11 @@ from openai import OpenAI
 from .prompts import SYSTEM_PROMPT
 from .memory import save_memory, get_memory
 
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+# إنشاء العميل
+client = OpenAI(
+    api_key=os.environ.get("OPENAI_API_KEY")
+)
+
 
 def run_agent(user_id, message):
 
@@ -13,18 +17,28 @@ def run_agent(user_id, message):
         {"role": "system", "content": SYSTEM_PROMPT},
     ]
 
+    # إضافة الذاكرة السابقة
     for h in history:
-        messages.append({"role": "user", "content": h})
+        messages.append({
+            "role": "user",
+            "content": h
+        })
 
-    messages.append({"role": "user", "content": message})
+    # رسالة المستخدم الحالية
+    messages.append({
+        "role": "user",
+        "content": message
+    })
 
-    response = client.chat.completions.create(
+    # استدعاء الذكاء الاصطناعي
+    response = client.responses.create(
         model="gpt-5.2",
-        messages=messages,
+        input=messages
     )
 
-    reply = response.choices[0].message.content
+    reply = response.output_text
 
+    # حفظ الذاكرة
     save_memory(user_id, message)
     save_memory(user_id, reply)
 
