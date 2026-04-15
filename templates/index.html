@@ -95,7 +95,7 @@
         <div class="job-actions">
 
           <button class="btn-apply"
-            onclick="openApply({{ job.id }}, '{{ job.title | replace(\"'\", \"\\'\") }}', {{ 'true' if job.verified else 'false' }})">
+            onclick="openApply({{ job.id }}, {{ job.title | tojson }}, {{ 'true' if job.verified else 'false' }})">
             قدم الآن
           </button>
 
