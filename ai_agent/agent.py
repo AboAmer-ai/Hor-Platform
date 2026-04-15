@@ -1,4 +1,3 @@
-
 import os
 from openai import OpenAI
 from .prompts import SYSTEM_PROMPT
