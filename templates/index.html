@@ -2,122 +2,177 @@
 
 {% block content %}
 
-<!-- ═══ HERO ═══ -->
+<!-- HERO -->
 <section class="hero">
-  <div class="hero-shapes" aria-hidden="true">
-    <div class="hero-shape s1"></div>
-    <div class="hero-shape s2"></div>
-    <div class="hero-shape s3"></div>
-  </div>
-
   <div class="hero-inner">
+
     <div class="hero-badge">
-      <span class="badge-dot"></span>
       منصة موثوقة للمستقلين العرب
     </div>
 
     <h1 class="hero-title">
-      منصة <span class="brand-inline">حُر</span>
-      <span class="hero-title-line2">حيث تلتقي المهارة بالفرصة</span>
+      منصة حُر
+      <span class="hero-subtitle">حيث تلتقي المهارة بالفرصة</span>
     </h1>
 
-    <p class="hero-sub">
-      اكتشف فرص عمل حقيقية في التصميم، البرمجة، الكتابة، والمزيد.
+    <p class="hero-desc">
+      اكتشف فرص عمل حقيقية وتواصل مباشرة مع أصحاب المشاريع بدون وسطاء
     </p>
 
-    <div class="hero-cta">
-      <a href="{{ url_for('post_job') }}" class="hero-btn-primary">
-        ➕ انشر وظيفتك الآن
-      </a>
-      <a href="#jobs-anchor" class="hero-btn-secondary">استعرض الوظائف ↓</a>
+    <div class="hero-actions">
+      <a href="{{ url_for('post_job') }}" class="btn-primary">➕ انشر وظيفة</a>
+      <a href="#jobs" class="btn-secondary">استعرض الوظائف</a>
     </div>
 
     <div class="hero-stats">
-      <div class="stat">
-        <span class="stat-num">{{ total_jobs }}+</span>
-        <span class="stat-label">وظيفة نشطة</span>
-      </div>
-
-      <div class="stat">
-        <span class="stat-num">{{ categories | length }}</span>
-        <span class="stat-label">تخصصات</span>
-      </div>
-
-      <div class="stat">
-        <span class="stat-num">100%</span>
-        <span class="stat-label">مجاني</span>
-      </div>
+      <div>{{ total_jobs }} وظيفة</div>
+      <div>{{ categories | length }} تصنيف</div>
+      <div>مجاني 100%</div>
     </div>
+
   </div>
 </section>
 
-<!-- ═══ CONTENT ═══ -->
-<div class="content-wrapper" id="jobs-anchor">
 
+<!-- CONTENT -->
+<div class="content-wrapper" id="jobs">
+
+  <!-- FILTERS -->
   <aside class="filters">
     <h3>التصنيفات</h3>
     <ul>
-      <li><a href="{{ url_for('index') }}">الكل</a></li>
+      <li>
+        <a href="{{ url_for('index') }}" class="{% if not selected_category %}active{% endif %}">
+          الكل
+        </a>
+      </li>
+
       {% for cat in categories %}
-        <li>
-          <a href="{{ url_for('index', category=cat) }}">
-            {{ category_icons[cat] }} {{ cat }}
-          </a>
-        </li>
+      <li>
+        <a href="{{ url_for('index', category=cat) }}"
+           class="{% if selected_category == cat %}active{% endif %}">
+          {{ category_icons[cat] }} {{ cat }}
+        </a>
+      </li>
       {% endfor %}
     </ul>
   </aside>
 
+
+  <!-- JOBS -->
   <div class="jobs-section">
 
     <div class="section-header">
-      <h2>أحدث الوظائف</h2>
+      <h2>
+        {% if selected_category %}
+          {{ selected_category }}
+        {% else %}
+          أحدث الوظائف
+        {% endif %}
+      </h2>
       <span>{{ jobs | length }} وظيفة</span>
     </div>
 
     {% if jobs %}
-      <div class="jobs-grid">
+    <div class="jobs-grid">
 
-        {% for job in jobs %}
-        <div class="job-card {% if job.verified %}job-card--verified{% endif %}">
+      {% for job in jobs %}
+      <div class="job-card {% if job.verified %}verified{% endif %}">
 
-          <div class="job-card-top">
-            <span>{{ category_icons.get(job.category,'📁') }} {{ job.category }}</span>
-            <span>{{ job.budget }} {{ job.currency }}</span>
-          </div>
+        <!-- TOP -->
+        <div class="job-top">
+          <span>{{ category_icons.get(job.category, '📁') }} {{ job.category }}</span>
+          <span>{{ job.budget }} {{ job.currency }}</span>
+        </div>
 
-          <h3>{{ job.title }}</h3>
-          <p>{{ job.description[:120] }}...</p>
+        <!-- TITLE -->
+        <h3 class="job-title">{{ job.title }}</h3>
 
-          <div style="display:flex; gap:10px; margin-top:10px;">
+        <!-- DESCRIPTION -->
+        <p class="job-desc">{{ job.description[:120] }}...</p>
 
-            <button class="btn-apply">قدم الآن</button>
+        <!-- ACTIONS -->
+        <div class="job-actions">
 
-            <a href="https://wa.me/{{ job.whatsapp }}" target="_blank">واتساب</a>
+          <button class="btn-apply"
+            onclick="openApply({{ job.id }}, '{{ job.title | replace(\"'\", \"\\'\") }}', {{ 'true' if job.verified else 'false' }})">
+            قدم الآن
+          </button>
 
-            {% if job.phone %}
-              <a href="tel:+{{ job.phone }}">اتصال</a>
-            {% endif %}
+          <a class="btn-wa" href="https://wa.me/{{ job.whatsapp }}" target="_blank">
+            واتساب
+          </a>
 
-            {% if job.email %}
-              <a href="mailto:{{ job.email }}">إيميل</a>
-            {% endif %}
+          {% if job.phone %}
+          <a class="btn-phone" href="tel:+{{ job.phone }}">
+            اتصال
+          </a>
+          {% endif %}
 
-            {% if job.website %}
-              <a href="{{ job.website }}" target="_blank">موقع</a>
-            {% endif %}
+          {% if job.email %}
+          <a class="btn-email" href="mailto:{{ job.email }}">
+            إيميل
+          </a>
+          {% endif %}
 
-          </div>
+          {% if job.website %}
+          <a class="btn-web" href="{{ job.website }}" target="_blank">
+            موقع
+          </a>
+          {% endif %}
 
         </div>
-        {% endfor %}
 
       </div>
+      {% endfor %}
+
+    </div>
+
     {% else %}
       <p>لا توجد وظائف حالياً</p>
     {% endif %}
 
   </div>
 </div>
+
+
+<!-- APPLY MODAL -->
+<div class="modal-backdrop" id="applyBackdrop" onclick="closeApply(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+
+    <h2 id="modalTitle">تقديم سريع</h2>
+    <p id="modalJobTitle"></p>
+
+    <form id="applyForm" method="POST">
+
+      <input type="text" name="name" placeholder="الاسم" required>
+      <input type="tel" name="phone" placeholder="الهاتف" required>
+      <input type="email" name="email" placeholder="الإيميل" required>
+
+      <textarea name="skills" placeholder="المهارات"></textarea>
+
+      <div class="modal-actions">
+        <button type="button" onclick="closeApply()">إغلاق</button>
+        <button type="submit">إرسال</button>
+      </div>
+
+    </form>
+
+  </div>
+</div>
+
+
+<script>
+function openApply(id, title, verified){
+  document.getElementById("applyForm").action = "/apply/" + id;
+  document.getElementById("modalJobTitle").innerText = title;
+  document.getElementById("applyBackdrop").style.display = "flex";
+}
+
+function closeApply(e){
+  if(e && e.target !== document.getElementById("applyBackdrop")) return;
+  document.getElementById("applyBackdrop").style.display = "none";
+}
+</script>
 
 {% endblock %}
