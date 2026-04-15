@@ -1,4 +1,3 @@
-from models import Job
 from app import db
 
 
