@@ -13,7 +13,6 @@ load_dotenv()
 app = Flask(__name__)
 
 hf_token = os.getenv("HF_TOKEN")
-print(hf_token)
 
 app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key")
 app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
