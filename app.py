@@ -346,11 +346,27 @@ def subscribe():
 @app.route("/ai", methods=["POST"])
 def ai_chat():
 
-    user_message = request.form.get("message")
+    message = request.form.get("message")
+    page = request.form.get("page", "home")
+
+    # بناء سياق الصفحة للذكاء الاصطناعي
+    system_context = f"""
+انت مساعد داخل منصة توظيف.
+
+الصفحة الحالية: {page}
+
+اذا كانت:
+home → اشرح المنصة.
+jobs → ساعد المستخدم اختيار وظيفة.
+apply → اشرح خطوات التقديم.
+"""
+
+    # دمج السياق مع رسالة المستخدم
+    final_message = system_context + "\n\n" + message
 
     reply = run_agent(
         user_id="guest",
-        message=user_message
+        message=final_message
     )
 
     return {"reply": reply}
