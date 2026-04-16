@@ -36,18 +36,21 @@ def run_agent(user_id, message):
     prompt = SYSTEM_PROMPT + "\n\n"
 
     # إضافة الذاكرة
+    if history:
+    prompt += "سجل المحادثة:\n"
     for h in history[-6:]:
-        prompt += f"{h}\n"
+        prompt += f"- {h}\n"
 
     # الرسالة الحالية (مع السياق)
     prompt += f"\nUser: {message}\nAssistant:"
 
     payload = {
-        "inputs": prompt,
-        "parameters": {
-            "max_new_tokens": 200,
-            "temperature": 0.7
-        }
+    "inputs": prompt,
+    "parameters": {
+        "max_new_tokens": 180,
+        "temperature": 0.8,
+        "repetition_penalty": 1.2
+    }
     }
 
     try:
