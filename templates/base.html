@@ -80,6 +80,46 @@
       <span>© 2025 منصة حُر — جميع الحقوق محفوظة</span>
     </div>
   </footer>
+<!-- AI Assistant -->
+<div id="ai-box">
+  <div id="ai-header">🤖 مساعد حُر الذكي</div>
 
+  <div id="ai-messages"></div>
+
+  <div id="ai-input-area">
+    <input id="ai-input" placeholder="اسأل عن وظيفة..." />
+    <button onclick="sendAI()">إرسال</button>
+  </div>
+</div>
+
+<script>
+async function sendAI() {
+
+  const input = document.getElementById("ai-input");
+  const message = input.value;
+
+  if(!message) return;
+
+  const box = document.getElementById("ai-messages");
+
+  box.innerHTML += "<div><b>أنت:</b> " + message + "</div>";
+
+  input.value = "";
+
+  const res = await fetch("/ai", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: "message=" + encodeURIComponent(message)
+  });
+
+  const data = await res.json();
+
+  box.innerHTML += "<div><b>المساعد:</b> " + data.reply + "</div>";
+
+  box.scrollTop = box.scrollHeight;
+}
+</script>
 </body>
 </html>
