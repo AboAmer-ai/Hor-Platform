@@ -37,8 +37,8 @@ def run_agent(user_id, message):
 
     # إضافة الذاكرة
     if history:
-    prompt += "سجل المحادثة:\n"
-    for h in history[-6:]:
+     prompt += "سجل المحادثة:\n"
+     for h in history[-6:]:
         prompt += f"- {h}\n"
 
     # الرسالة الحالية (مع السياق)
