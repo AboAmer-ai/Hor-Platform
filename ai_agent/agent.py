@@ -50,7 +50,7 @@ def run_agent(user_id, message):
         "max_new_tokens": 180,
         "temperature": 0.8,
         "repetition_penalty": 1.2
-    }
+       }
     }
 
     try:
