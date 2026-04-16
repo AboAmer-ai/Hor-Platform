@@ -17,7 +17,6 @@ def run_agent(user_id, message):
 
     history = get_memory(user_id)
 
-    # بناء السياق
     prompt = SYSTEM_PROMPT + "\n\n"
 
     for h in history[-6:]:
@@ -33,21 +32,22 @@ def run_agent(user_id, message):
         }
     }
 
-    response = requests.post(API_URL, headers=headers, json=payload)
-
     try:
+        response = requests.post(API_URL, headers=headers, json=payload, timeout=60)
         output = response.json()
 
-        if isinstance(output, list):
+        if isinstance(output, list) and "generated_text" in output[0]:
             reply = output[0]["generated_text"]
+        elif isinstance(output, dict) and "error" in output:
+            print("HF ERROR:", output["error"])
+            reply = "حدث خطأ في الذكاء الاصطناعي"
         else:
-            reply = output.get("error", "AI Error")
+            reply = "لم يتم الحصول على رد من الذكاء الاصطناعي"
 
     except Exception as e:
         print("HF ERROR:", str(e))
-        reply = f"حدث خطأ: {str(e)}"
-    
-    # حفظ الذاكرة
+        reply = "حدث خطأ في الذكاء الاصطناعي"
+
     save_memory(user_id, message)
     save_memory(user_id, reply)
 
