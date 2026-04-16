@@ -7,8 +7,13 @@ from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, flash, g
 from werkzeug.utils import secure_filename
 from ai_agent.agent import run_agent
+from dotenv import load_dotenv
+load_dotenv()
 
 app = Flask(__name__)
+
+hf_token = os.getenv("HF_TOKEN")
+print(hf_token)
 
 app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key")
 app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
