@@ -265,37 +265,6 @@
 </div>
 
 <script>
-function openApply(jobId, jobTitle, isVerified) {
-  document.getElementById('applyForm').action = '/apply/' + jobId;
-  document.getElementById('modalJobTitle').textContent = jobTitle;
-  document.getElementById('cvRequired').style.display = isVerified ? 'inline' : 'none';
-  document.getElementById('cvOptional').style.display = isVerified ? 'none' : 'inline';
-  document.getElementById('app_cv').required = isVerified;
-  document.getElementById('applyBackdrop').classList.add('modal-open');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeApply(event) {
-  if (event && event.target !== document.getElementById('applyBackdrop')) return;
-  document.getElementById('applyBackdrop').classList.remove('modal-open');
-  document.body.style.overflow = '';
-  document.getElementById('applyForm').reset();
-  document.getElementById('cvLabel').textContent = 'اسحب ملف PDF هنا أو اضغط للاختيار';
-}
-
-function updateCvLabel(input) {
-  const label = document.getElementById('cvLabel');
-  label.textContent = input.files.length ? input.files[0].name : 'اسحب ملف PDF هنا أو اضغط للاختيار';
-}
-
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') {
-    document.getElementById('applyBackdrop').classList.remove('modal-open');
-    document.body.style.overflow = '';
-  }
-});
-
-<script>
 
 /* ================= APPLY MODAL ================= */
 
