@@ -1502,14 +1502,6 @@ footer {
   align-items: center;
 }
 
-/* الرسائل */
-.ai-messages {
-  flex: 1;
-  padding: 10px;
-  overflow-y: auto;
-  font-size: 14px;
-}
-
 /* الإدخال */
 .ai-input-row {
   display: flex;
@@ -1538,7 +1530,7 @@ footer {
   color: white;
   font-size: 16px;
   cursor: pointer;
-
+}
 /* ===== AI CHAT BUBBLES ===== */
 
 .ai-messages {
