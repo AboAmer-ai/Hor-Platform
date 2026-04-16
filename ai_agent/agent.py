@@ -35,9 +35,11 @@ def run_agent(user_id, message):
 
     prompt = SYSTEM_PROMPT + "\n\n"
 
+    # إضافة الذاكرة
     for h in history[-6:]:
         prompt += f"{h}\n"
 
+    # الرسالة الحالية (مع السياق)
     prompt += f"\nUser: {message}\nAssistant:"
 
     payload = {
@@ -50,16 +52,12 @@ def run_agent(user_id, message):
 
     try:
         response = requests.post(API_URL, headers=headers, json=payload, timeout=20)
+        output = response.json()
 
-        try:
-            output = response.json()
-        except:
-            output = None
-
+        # إصلاح قراءة HuggingFace (مهم جداً)
         if isinstance(output, list) and "generated_text" in output[0]:
-            reply = output[0]["generated_text"]
-        elif isinstance(output, dict) and "error" in output:
-            reply = fallback_reply(message)
+            full_text = output[0]["generated_text"]
+            reply = full_text.split("Assistant:")[-1].strip()
         else:
             reply = fallback_reply(message)
 
