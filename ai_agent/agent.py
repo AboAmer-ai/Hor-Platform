@@ -30,15 +30,32 @@ def fallback_reply(message: str) -> str:
 
 def detect_tool(message: str):
 
-    msg = message.lower()
+    msg = message.lower().strip()
 
-    if "وظائف" in msg or "jobs" in msg:
+    # طلب عرض وظائف صريح
+    if any(word in msg for word in [
+        "اعرض الوظائف",
+        "وظائف متاحة",
+        "اريد وظائف",
+        "show jobs",
+        "available jobs"
+    ]):
         return "get_jobs"
 
-    if "ابحث" in msg or "search" in msg:
+    # بحث عن وظيفة
+    if any(word in msg for word in [
+        "ابحث عن",
+        "search job",
+        "وظيفة في"
+    ]):
         return "search_jobs"
 
-    if "نشر وظيفة" in msg or "اضف وظيفة" in msg:
+    # نشر وظيفة
+    if any(word in msg for word in [
+        "اضف وظيفة",
+        "نشر وظيفة",
+        "post job"
+    ]):
         return "add_job"
 
     return None
