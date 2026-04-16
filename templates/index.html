@@ -307,10 +307,14 @@ async function sendMessage() {
 
   let box = document.getElementById("aiMessages");
 
-  // عرض رسالة المستخدم
-  box.innerHTML += `<div><b>أنت:</b> ${message}</div>`;
+  // رسالة المستخدم (فقاعة)
+  let userMsg = document.createElement("div");
+  userMsg.className = "ai-msg ai-user";
+  userMsg.textContent = message;
+  box.appendChild(userMsg);
 
   input.value = "";
+  box.scrollTop = box.scrollHeight;
 
   try {
     let res = await fetch("/ai", {
@@ -321,11 +325,19 @@ async function sendMessage() {
 
     let data = await res.json();
 
-    box.innerHTML += `<div><b>المساعد:</b> ${data.reply}</div>`;
+    // رسالة البوت (فقاعة)
+    let botMsg = document.createElement("div");
+    botMsg.className = "ai-msg ai-bot";
+    botMsg.textContent = data.reply;
+    box.appendChild(botMsg);
+
     box.scrollTop = box.scrollHeight;
 
   } catch (e) {
-    box.innerHTML += `<div><b>المساعد:</b> حدث خطأ في الاتصال</div>`;
+    let errMsg = document.createElement("div");
+    errMsg.className = "ai-msg ai-bot";
+    errMsg.textContent = "حدث خطأ في الاتصال";
+    box.appendChild(errMsg);
   }
 }
 </script>
