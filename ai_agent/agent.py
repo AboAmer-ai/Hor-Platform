@@ -43,9 +43,10 @@ def run_agent(user_id, message):
         else:
             reply = output.get("error", "AI Error")
 
-    except:
-        reply = "حدث خطأ في الذكاء الاصطناعي"
-
+    except Exception as e:
+    print("HF ERROR:", str(e))
+    reply = f"حدث خطأ: {str(e)}"
+    
     # حفظ الذاكرة
     save_memory(user_id, message)
     save_memory(user_id, reply)
