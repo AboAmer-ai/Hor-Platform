@@ -293,7 +293,12 @@ function toggleChat() {
   document.getElementById("aiChatBox").classList.toggle("hidden");
 }
 
-document.getElementById("aiChatBtn").addEventListener("click", toggleChat);
+document.addEventListener("DOMContentLoaded", function () {
+  const btn = document.getElementById("aiChatBtn");
+  if (btn) {
+    btn.addEventListener("click", toggleChat);
+  }
+});
 
 async function sendMessage() {
   let input = document.getElementById("aiInput");
