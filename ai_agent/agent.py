@@ -67,8 +67,16 @@ def run_agent(user_id, message):
     # =====================
     tool = detect_tool(message)
 
+    if tool:
     if tool == "get_jobs":
         return get_jobs()
+
+    if tool == "search_jobs":
+        keyword = message.split()[-1]
+        return search_jobs(keyword)
+
+    if tool == "add_job":
+        return "لإضافة وظيفة انتقل إلى صفحة نشر الوظائف."
 
     if tool == "search_jobs":
         keyword = message.split()[-1]
