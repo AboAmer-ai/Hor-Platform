@@ -76,8 +76,9 @@ def run_agent(user_id, message):
             return search_jobs(keyword)
 
         if tool == "add_job":
-            return "لإضافة وظيفة انتقل إلى صفحة نشر الوظائف."if   # =====================
-    
+            return "لإضافة وظيفة انتقل إلى صفحة نشر الوظائف."
+   
+    # =====================
     # AI CONVERSATION
     # =====================
 
