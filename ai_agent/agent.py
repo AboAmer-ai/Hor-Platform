@@ -45,11 +45,30 @@ def detect_tool(message: str):
 
 def run_agent(user_id, message):
 
+    # =====================
+    # TOOL DETECTION
+    # =====================
+    tool = detect_tool(message)
+
+    if tool == "get_jobs":
+        return get_jobs()
+
+    if tool == "search_jobs":
+        keyword = message.split()[-1]
+        return search_jobs(keyword)
+
+    if tool == "add_job":
+        return "لإضافة وظيفة انتقل إلى صفحة نشر الوظائف وقم بملء البيانات."
+
+    # =====================
+    # AI CONVERSATION
+    # =====================
+
     history = get_memory(user_id)
 
     conversation = SYSTEM_PROMPT + "\n\n"
 
-    # اخر محادثات فقط
+    # آخر المحادثات فقط
     for h in history[-6:]:
         conversation += h + "\n"
 
@@ -85,7 +104,7 @@ def run_agent(user_id, message):
     except:
         reply = fallback_reply(message)
 
-    # حفظ المحادثة بشكل صحيح
+    # حفظ المحادثة
     save_memory(user_id, f"User: {message}")
     save_memory(user_id, f"Assistant: {reply}")
 
