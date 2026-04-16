@@ -351,22 +351,27 @@ def ai_chat():
 
     message = data.get("message", "")
     page = data.get("page", "home")
-    context = data.get("context", "")
 
-    # دمج السياق مع الرسالة (مهم جداً)
-    full_message = f"""
-{context}
+    # بناء سياق الصفحة
+    system_context = f"""
+انت مساعد داخل منصة توظيف.
 
-User message:
-{message}
+الصفحة الحالية: {page}
+
+اذا كانت:
+home → اشرح المنصة وكيف يبدأ المستخدم.
+jobs → ساعد المستخدم اختيار وظيفة مناسبة.
+apply → اشرح خطوات التقديم.
 """
+
+    final_message = system_context + "\n\n" + message
 
     reply = run_agent(
         user_id="guest",
-        message=full_message
+        message=final_message
     )
 
-    return jsonify({"reply": reply})
+    return {"reply": reply}
 
 
 if __name__ == "__main__":
