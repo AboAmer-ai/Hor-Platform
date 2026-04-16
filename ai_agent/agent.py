@@ -1,42 +1,50 @@
 import os
-from openai import OpenAI
+import requests
 from .prompts import SYSTEM_PROMPT
 from .memory import save_memory, get_memory
 from .tools import get_jobs, add_job, search_jobs
-# إنشاء العميل
-client = OpenAI(
-    api_key=os.environ.get("OPENAI_API_KEY")
-)
+
+HF_TOKEN = os.getenv("HF_TOKEN")
+
+API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2"
+
+headers = {
+    "Authorization": f"Bearer {HF_TOKEN}"
+}
 
 
 def run_agent(user_id, message):
 
     history = get_memory(user_id)
 
-    messages = [
-        {"role": "system", "content": SYSTEM_PROMPT},
-    ]
+    # بناء السياق
+    prompt = SYSTEM_PROMPT + "\n\n"
 
-    # إضافة الذاكرة السابقة
-    for h in history:
-        messages.append({
-            "role": "user",
-            "content": h
-        })
+    for h in history[-6:]:
+        prompt += f"{h}\n"
 
-    # رسالة المستخدم الحالية
-    messages.append({
-        "role": "user",
-        "content": message
-    })
+    prompt += f"\nUser: {message}\nAssistant:"
 
-    # استدعاء الذكاء الاصطناعي
-    response = client.responses.create(
-        model="gpt-5.2",
-        input=messages
-    )
+    payload = {
+        "inputs": prompt,
+        "parameters": {
+            "max_new_tokens": 300,
+            "temperature": 0.7
+        }
+    }
 
-    reply = response.output_text
+    response = requests.post(API_URL, headers=headers, json=payload)
+
+    try:
+        output = response.json()
+
+        if isinstance(output, list):
+            reply = output[0]["generated_text"]
+        else:
+            reply = output.get("error", "AI Error")
+
+    except:
+        reply = "حدث خطأ في الذكاء الاصطناعي"
 
     # حفظ الذاكرة
     save_memory(user_id, message)
