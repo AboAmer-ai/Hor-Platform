@@ -2,7 +2,7 @@ import os
 import requests
 from .prompts import SYSTEM_PROMPT
 from .memory import save_memory, get_memory
-
+from .tools import get_jobs, search_jobs, add_job
 HF_TOKEN = os.getenv("HF_TOKEN")
 
 API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2"
@@ -28,6 +28,20 @@ def fallback_reply(message: str) -> str:
 
     return "أنا جاهز لمساعدتك، اكتب سؤالك بشكل أوضح 😊"
 
+def detect_tool(message: str):
+
+    msg = message.lower()
+
+    if "وظائف" in msg or "jobs" in msg:
+        return "get_jobs"
+
+    if "ابحث" in msg or "search" in msg:
+        return "search_jobs"
+
+    if "نشر وظيفة" in msg or "اضف وظيفة" in msg:
+        return "add_job"
+
+    return None
 
 def run_agent(user_id, message):
 
