@@ -44,8 +44,8 @@ def run_agent(user_id, message):
             reply = output.get("error", "AI Error")
 
     except Exception as e:
-    print("HF ERROR:", str(e))
-    reply = f"حدث خطأ: {str(e)}"
+        print("HF ERROR:", str(e))
+        reply = f"حدث خطأ: {str(e)}"
     
     # حفظ الذاكرة
     save_memory(user_id, message)
