@@ -33,41 +33,46 @@ def run_agent(user_id, message):
 
     history = get_memory(user_id)
 
-    prompt = SYSTEM_PROMPT + "\n\n"
+    conversation = SYSTEM_PROMPT + "\n\n"
 
-    # إضافة الذاكرة
-    if history:
-        prompt += "سجل المحادثة:\n"
-        for h in history[-6:]:
-           prompt += f"- {h}\n"
+    # اخر محادثات فقط
+    for h in history[-6:]:
+        conversation += h + "\n"
 
-    # الرسالة الحالية (مع السياق)
-    prompt += f"\nUser: {message}\nAssistant:"
+    conversation += f"User: {message}\nAssistant:"
 
     payload = {
-    "inputs": prompt,
-    "parameters": {
-        "max_new_tokens": 180,
-        "temperature": 0.8,
-        "repetition_penalty": 1.2
-       }
+        "inputs": conversation,
+        "parameters": {
+            "max_new_tokens": 180,
+            "temperature": 0.9,
+            "top_p": 0.95,
+            "repetition_penalty": 1.3,
+            "do_sample": True
+        }
     }
 
     try:
-        response = requests.post(API_URL, headers=headers, json=payload, timeout=20)
+        response = requests.post(
+            API_URL,
+            headers=headers,
+            json=payload,
+            timeout=20
+        )
+
         output = response.json()
 
-        # إصلاح قراءة HuggingFace (مهم جداً)
-        if isinstance(output, list) and "generated_text" in output[0]:
-            full_text = output[0]["generated_text"]
-            reply = full_text.split("Assistant:")[-1].strip()
+        if isinstance(output, list):
+            text = output[0]["generated_text"]
+            reply = text.split("Assistant:")[-1].strip()
         else:
             reply = fallback_reply(message)
 
     except:
         reply = fallback_reply(message)
 
-    save_memory(user_id, message)
-    save_memory(user_id, reply)
+    # حفظ المحادثة بشكل صحيح
+    save_memory(user_id, f"User: {message}")
+    save_memory(user_id, f"Assistant: {reply}")
 
     return reply
