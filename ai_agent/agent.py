@@ -78,13 +78,6 @@ def run_agent(user_id, message):
     if tool == "add_job":
         return "لإضافة وظيفة انتقل إلى صفحة نشر الوظائف."
 
-    if tool == "search_jobs":
-        keyword = message.split()[-1]
-        return search_jobs(keyword)
-
-    if tool == "add_job":
-        return "لإضافة وظيفة انتقل إلى صفحة نشر الوظائف وقم بملء البيانات."
-
     # =====================
     # AI CONVERSATION
     # =====================
