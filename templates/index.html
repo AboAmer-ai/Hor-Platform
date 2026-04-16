@@ -2,6 +2,9 @@
 
 {% block content %}
 
+<!-- معرفة الصفحة الحالية للذكاء الاصطناعي -->
+<input type="hidden" id="currentPage" value="home">
+
 <!-- ═══ HERO ═══ -->
 <section class="hero">
   <div class="hero-shapes" aria-hidden="true">
@@ -46,7 +49,10 @@
       </div>
     </div>
   </div>
+
 </section>
+
+<input type="hidden" id="currentPage" value="jobs">
 
 <!-- ═══ CONTENT ═══ -->
 <div class="content-wrapper" id="jobs-anchor">
@@ -185,6 +191,8 @@
   </div>
 </div>
 
+<input type="hidden" id="currentPage" value="apply">
+
 <!-- ═══ QUICK APPLY MODAL ═══ -->
 <div class="modal-backdrop" id="applyBackdrop" onclick="closeApply(event)" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
   <div class="modal" onclick="event.stopPropagation()">
@@ -287,28 +295,112 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
-// ===== AI CHAT =====
+<script>
+
+/* ================= APPLY MODAL ================= */
+
+function openApply(jobId, jobTitle, isVerified) {
+  document.getElementById('applyForm').action = '/apply/' + jobId;
+  document.getElementById('modalJobTitle').textContent = jobTitle;
+  document.getElementById('cvRequired').style.display = isVerified ? 'inline' : 'none';
+  document.getElementById('cvOptional').style.display = isVerified ? 'none' : 'inline';
+  document.getElementById('app_cv').required = isVerified;
+  document.getElementById('applyBackdrop').classList.add('modal-open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeApply(event) {
+  if (event && event.target !== document.getElementById('applyBackdrop')) return;
+  document.getElementById('applyBackdrop').classList.remove('modal-open');
+  document.body.style.overflow = '';
+  document.getElementById('applyForm').reset();
+  document.getElementById('cvLabel').textContent =
+    'اسحب ملف PDF هنا أو اضغط للاختيار';
+}
+
+function updateCvLabel(input) {
+  const label = document.getElementById('cvLabel');
+  label.textContent =
+    input.files.length ? input.files[0].name :
+    'اسحب ملف PDF هنا أو اضغط للاختيار';
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeApply();
+});
+
+
+/* ================= AI CHAT ================= */
 
 function toggleChat() {
   document.getElementById("aiChatBox").classList.toggle("hidden");
 }
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", () => {
   const btn = document.getElementById("aiChatBtn");
-  if (btn) {
-    btn.addEventListener("click", toggleChat);
-  }
+  if (btn) btn.addEventListener("click", toggleChat);
+
+  // رسالة ترحيبية ذكية
+  setTimeout(() => {
+    addBotMessage(getSmartWelcome());
+  }, 1200);
 });
 
+
+/* ===== تحديد الصفحة الحالية ===== */
+
+function getCurrentPage() {
+  const el = document.getElementById("currentPage");
+  return el ? el.value : "home";
+}
+
+
+/* ===== ترحيب حسب الصفحة ===== */
+
+function getSmartWelcome() {
+
+  const page = getCurrentPage();
+
+  if (page === "home")
+    return "👋 مرحباً بك في منصة حُر، يمكنك استعراض الوظائف أو سؤالي عن أي شيء.";
+
+  if (page === "jobs")
+    return "💼 هل تريد مساعدة في اختيار وظيفة مناسبة لك؟";
+
+  if (page === "apply")
+    return "📝 املأ بياناتك ثم اضغط إرسال الطلب، ويمكنني مساعدتك إن احتجت.";
+
+  return "مرحباً 👋 كيف أستطيع مساعدتك؟";
+}
+
+
+/* ===== إضافة رسالة البوت ===== */
+
+function addBotMessage(text) {
+  const box = document.getElementById("aiMessages");
+
+  const msg = document.createElement("div");
+  msg.className = "ai-msg ai-bot";
+  msg.textContent = text;
+
+  box.appendChild(msg);
+  box.scrollTop = box.scrollHeight;
+}
+
+
+/* ===== إرسال رسالة ===== */
+
 async function sendMessage() {
-  let input = document.getElementById("aiInput");
-  let message = input.value.trim();
+
+  const input = document.getElementById("aiInput");
+  const message = input.value.trim();
+
   if (!message) return;
 
-  let box = document.getElementById("aiMessages");
+  const box = document.getElementById("aiMessages");
 
-  // رسالة المستخدم (فقاعة)
-  let userMsg = document.createElement("div");
+  /* رسالة المستخدم */
+  const userMsg = document.createElement("div");
   userMsg.className = "ai-msg ai-user";
   userMsg.textContent = message;
   box.appendChild(userMsg);
@@ -316,40 +408,58 @@ async function sendMessage() {
   input.value = "";
   box.scrollTop = box.scrollHeight;
 
+  /* ✅ معرفة الصفحة الحالية */
+  const page =
+    document.getElementById("currentPage")?.value || "home";
+
+  /* ✅ بناء سياق الذكاء الاصطناعي */
+  const systemContext = `
+انت مساعد ذكي داخل منصة توظيف.
+
+الصفحة الحالية: ${page}
+
+القواعد:
+- لا تعطي رد عام.
+- اجعل الرد مختلف حسب الصفحة.
+
+اذا كانت الصفحة:
+home → اشرح المنصة وكيف يبدأ المستخدم.
+jobs → ساعد المستخدم اختيار وظيفة مناسبة.
+apply → اشرح خطوات التقديم بالتفصيل.
+`;
+
   try {
-    let res = await fetch("/ai", {
+
+    const res = await fetch("/ai", {
       method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: "message=" + encodeURIComponent(message)
+      headers: { "Content-Type": "application/json" },
+
+      /* ✅ إرسال الرسالة + الصفحة + السياق */
+      body: JSON.stringify({
+        message: message,
+        page: page,
+        context: systemContext
+      })
     });
 
-    let data = await res.json();
+    const data = await res.json();
 
-    // رسالة البوت (فقاعة)
-    let botMsg = document.createElement("div");
-    botMsg.className = "ai-msg ai-bot";
-    botMsg.textContent = data.reply;
-    box.appendChild(botMsg);
-
-    box.scrollTop = box.scrollHeight;
+    addBotMessage(data.reply);
 
   } catch (e) {
-    let errMsg = document.createElement("div");
-    errMsg.className = "ai-msg ai-bot";
-    errMsg.textContent = "حدث خطأ في الاتصال";
-    box.appendChild(errMsg);
+    addBotMessage("⚠️ حدث خطأ في الاتصال بالخادم");
   }
 }
+
 </script>
+
 
 <!-- ═══ AI CHAT WIDGET ═══ -->
 
-<!-- زر فتح الشات -->
 <button id="aiChatBtn" class="ai-chat-btn">
   💬 اسأل مساعد حُر
 </button>
 
-<!-- نافذة الشات -->
 <div id="aiChatBox" class="ai-chat-box hidden">
 
   <div class="ai-chat-header">
