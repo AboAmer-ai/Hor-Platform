@@ -9,6 +9,7 @@ from werkzeug.utils import secure_filename
 from ai_agent.agent import run_agent
 from dotenv import load_dotenv
 load_dotenv()
+from flask import request, jsonify
 
 app = Flask(__name__)
 
@@ -346,30 +347,26 @@ def subscribe():
 @app.route("/ai", methods=["POST"])
 def ai_chat():
 
-    message = request.form.get("message")
-    page = request.form.get("page", "home")
+    data = request.get_json()
 
-    # بناء سياق الصفحة للذكاء الاصطناعي
-    system_context = f"""
-انت مساعد داخل منصة توظيف.
+    message = data.get("message", "")
+    page = data.get("page", "home")
+    context = data.get("context", "")
 
-الصفحة الحالية: {page}
+    # دمج السياق مع الرسالة (مهم جداً)
+    full_message = f"""
+{context}
 
-اذا كانت:
-home → اشرح المنصة.
-jobs → ساعد المستخدم اختيار وظيفة.
-apply → اشرح خطوات التقديم.
+User message:
+{message}
 """
-
-    # دمج السياق مع رسالة المستخدم
-    final_message = system_context + "\n\n" + message
 
     reply = run_agent(
         user_id="guest",
-        message=final_message
+        message=full_message
     )
 
-    return {"reply": reply}
+    return jsonify({"reply": reply})
 
 
 if __name__ == "__main__":
