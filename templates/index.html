@@ -286,6 +286,68 @@ document.addEventListener('keydown', function(e) {
     document.body.style.overflow = '';
   }
 });
+
+<script>
+function toggleChat() {
+  document.getElementById("aiChatBox").classList.toggle("hidden");
+}
+
+document.getElementById("aiChatBtn").addEventListener("click", toggleChat);
+
+async function sendMessage() {
+  let input = document.getElementById("aiInput");
+  let message = input.value.trim();
+  if (!message) return;
+
+  let box = document.getElementById("aiMessages");
+
+  // عرض رسالة المستخدم
+  box.innerHTML += `<div><b>أنت:</b> ${message}</div>`;
+
+  input.value = "";
+
+  try {
+    let res = await fetch("/ai", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: "message=" + encodeURIComponent(message)
+    });
+
+    let data = await res.json();
+
+    box.innerHTML += `<div><b>المساعد:</b> ${data.reply}</div>`;
+    box.scrollTop = box.scrollHeight;
+
+  } catch (e) {
+    box.innerHTML += `<div><b>المساعد:</b> حدث خطأ في الاتصال</div>`;
+  }
+}
 </script>
+
+</script>
+
+<!-- ═══ AI CHAT WIDGET ═══ -->
+
+<!-- زر فتح الشات -->
+<button id="aiChatBtn" class="ai-chat-btn">
+  💬 اسأل مساعد حُر
+</button>
+
+<!-- نافذة الشات -->
+<div id="aiChatBox" class="ai-chat-box hidden">
+
+  <div class="ai-chat-header">
+    <span>🤖 مساعد منصة حُر</span>
+    <button onclick="toggleChat()" class="ai-close">✖</button>
+  </div>
+
+  <div id="aiMessages" class="ai-messages"></div>
+
+  <div class="ai-input-row">
+    <input id="aiInput" type="text" placeholder="اكتب سؤالك هنا..." />
+    <button onclick="sendMessage()">إرسال</button>
+  </div>
+
+</div>
 
 {% endblock %}
