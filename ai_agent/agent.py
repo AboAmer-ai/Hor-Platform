@@ -55,6 +55,21 @@ def fallback_reply(message: str) -> str:
 
 def detect_tool(message: str):
 
+    def tools_brain(message):
+
+    tool = detect_tool(message)
+
+    if tool == "get_jobs":
+        return get_jobs()
+
+    if tool == "search_jobs":
+        return search_jobs(message)
+
+    if tool == "add_job":
+        return "لإضافة وظيفة انتقل إلى صفحة نشر وظيفة داخل المنصة."
+
+    return None
+    
     msg = message.lower().strip()
 
     # طلب عرض وظائف صريح
