@@ -60,45 +60,33 @@ def detect_tool(message: str):
 
     return None
 
-def run_agent(user_id, message):
+الوظrundef run_agent(user_id, message):
 
-    # =====================
-    # TOOL DETECTION
-    # =====================
-    tool = detect_tool(message)
+    # 1️⃣ FAQ BRAIN
+    faq_answer = search_faq(message)
+    if faq_answer:
+        return faq_answer
 
-    if tool:
-        if tool == "get_jobs":
-            return get_jobs()
+    # 2️⃣ TOOLS BRAIN
+    tool_answer = tools_brain(message)
+    if tool_answer:
+        return tool_answer
 
-        if tool == "search_jobs":
-            keyword = message.split()[-1]
-            return search_jobs(keyword)
-
-        if tool == "add_job":
-            return "لإضافة وظيفة انتقل إلى صفحة نشر الوظائف."
-   
-    # =====================
-    # AI CONVERSATION
-    # =====================
-
+    # 3️⃣ ONLINE AI
     history = get_memory(user_id)
 
-    conversation = SYSTEM_PROMPT + "\n\n"
+    prompt = SYSTEM_PROMPT + "\n\n"
 
-    # آخر المحادثات فقط
     for h in history[-6:]:
-        conversation += h + "\n"
+        prompt += h + "\n"
 
-    conversation += f"User: {message}\nAssistant:"
+    prompt += f"User: {message}\nAssistant:"
 
     payload = {
-        "inputs": conversation,
+        "inputs": prompt,
         "parameters": {
             "max_new_tokens": 180,
-            "temperature": 0.9,
-            "top_p": 0.95,
-            "repetition_penalty": 1.3,
+            "temperature": 0.8,
             "do_sample": True
         }
     }
@@ -108,7 +96,7 @@ def run_agent(user_id, message):
             API_URL,
             headers=headers,
             json=payload,
-            timeout=20
+            timeout=15
         )
 
         output = response.json()
@@ -122,8 +110,7 @@ def run_agent(user_id, message):
     except:
         reply = fallback_reply(message)
 
-    # حفظ المحادثة
     save_memory(user_id, f"User: {message}")
     save_memory(user_id, f"Assistant: {reply}")
 
-    return reply
+    return replyply
