@@ -3,6 +3,7 @@ import requests
 from .prompts import SYSTEM_PROMPT
 from .memory import save_memory, get_memory
 from .tools import get_jobs, search_jobs, add_job
+
 HF_TOKEN = os.getenv("HF_TOKEN")
 
 API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2"
@@ -12,7 +13,7 @@ headers = {
 }
 
 # =========================
-# LOCAL FAQ BRAIN
+# FAQ BRAIN
 # =========================
 
 def search_faq(message):
@@ -37,8 +38,12 @@ def search_faq(message):
 
     return None
 
-def fallback_reply(message: str) -> str:
-    """ردود احتياطية ذكية بدون API"""
+
+# =========================
+# FALLBACK BRAIN
+# =========================
+
+def fallback_reply(message: str):
 
     msg = message.lower()
 
@@ -46,16 +51,53 @@ def fallback_reply(message: str) -> str:
         return "أهلاً بك 👋 كيف أقدر أساعدك اليوم؟"
 
     if "وظيفة" in msg:
-        return "تقدر تتصفح الوظائف أو تنشر وظيفة جديدة بسهولة من المنصة."
+        return "يمكنك تصفح الوظائف أو نشر وظيفة جديدة بسهولة من المنصة."
 
     if "مساعدة" in msg:
-        return "أنا هنا لمساعدتك، اكتب سؤالك وسأرد عليك."
+        return "أنا هنا لمساعدتك، اسألني أي شيء عن المنصة."
 
-    return "أنا جاهز لمساعدتك، اكتب سؤالك بشكل أوضح 😊"
+    return "أنا جاهز لمساعدتك 😊"
+
+
+# =========================
+# TOOL DETECTION
+# =========================
 
 def detect_tool(message: str):
 
-    def tools_brain(message):
+    msg = message.lower().strip()
+
+    if any(word in msg for word in [
+        "اعرض الوظائف",
+        "وظائف متاحة",
+        "اريد وظائف",
+        "show jobs",
+        "available jobs"
+    ]):
+        return "get_jobs"
+
+    if any(word in msg for word in [
+        "ابحث عن",
+        "search job",
+        "وظيفة في"
+    ]):
+        return "search_jobs"
+
+    if any(word in msg for word in [
+        "اضف وظيفة",
+        "نشر وظيفة",
+        "post job"
+    ]):
+        return "add_job"
+
+    return None
+
+
+# =========================
+# TOOLS BRAIN
+# =========================
+
+def tools_brain(message):
 
     tool = detect_tool(message)
 
@@ -69,50 +111,25 @@ def detect_tool(message: str):
         return "لإضافة وظيفة انتقل إلى صفحة نشر وظيفة داخل المنصة."
 
     return None
-    
-    msg = message.lower().strip()
 
-    # طلب عرض وظائف صريح
-    if any(word in msg for word in [
-        "اعرض الوظائف",
-        "وظائف متاحة",
-        "اريد وظائف",
-        "show jobs",
-        "available jobs"
-    ]):
-        return "get_jobs"
 
-    # بحث عن وظيفة
-    if any(word in msg for word in [
-        "ابحث عن",
-        "search job",
-        "وظيفة في"
-    ]):
-        return "search_jobs"
-
-    # نشر وظيفة
-    if any(word in msg for word in [
-        "اضف وظيفة",
-        "نشر وظيفة",
-        "post job"
-    ]):
-        return "add_job"
-
-    return None
+# =========================
+# MAIN AGENT
+# =========================
 
 def run_agent(user_id, message):
 
-    # FAQ
+    # 1️⃣ FAQ
     faq_answer = search_faq(message)
     if faq_answer:
         return faq_answer
 
-    # TOOLS
+    # 2️⃣ TOOLS
     tool_answer = tools_brain(message)
     if tool_answer:
         return tool_answer
 
-    # ONLINE AI
+    # 3️⃣ ONLINE AI
     history = get_memory(user_id)
 
     prompt = SYSTEM_PROMPT + "\n\n"
