@@ -87,17 +87,17 @@ def detect_tool(message: str):
 
 def run_agent(user_id, message):
 
-    # 1️⃣ FAQ BRAIN
+    # FAQ
     faq_answer = search_faq(message)
     if faq_answer:
         return faq_answer
 
-    # 2️⃣ TOOLS BRAIN
+    # TOOLS
     tool_answer = tools_brain(message)
     if tool_answer:
         return tool_answer
 
-    # 3️⃣ ONLINE AI
+    # ONLINE AI
     history = get_memory(user_id)
 
     prompt = SYSTEM_PROMPT + "\n\n"
@@ -129,6 +129,8 @@ def run_agent(user_id, message):
         if isinstance(output, list):
             text = output[0]["generated_text"]
             reply = text.split("Assistant:")[-1].strip()
+            reply = reply.replace("User:", "").strip()
+            reply = reply[:600]
         else:
             reply = fallback_reply(message)
 
@@ -139,4 +141,3 @@ def run_agent(user_id, message):
     save_memory(user_id, f"Assistant: {reply}")
 
     return reply
-    return replyply
