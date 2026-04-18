@@ -11,6 +11,31 @@ headers = {
     "Authorization": f"Bearer {HF_TOKEN}"
 }
 
+# =========================
+# LOCAL FAQ BRAIN
+# =========================
+
+def search_faq(message):
+
+    try:
+        with open("ai-agent/faq.txt", "r", encoding="utf-8") as f:
+            lines = f.readlines()
+
+        msg = message.lower()
+
+        for line in lines:
+            if "|" not in line:
+                continue
+
+            q, a = line.strip().split("|", 1)
+
+            if q.lower() in msg:
+                return a
+
+    except:
+        pass
+
+    return None
 
 def fallback_reply(message: str) -> str:
     """ردود احتياطية ذكية بدون API"""
