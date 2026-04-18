@@ -155,7 +155,7 @@ def run_agent(user_id, message):
     # GUIDE BRAIN
     guide_answer = guide_brain(message)
     if guide_answer:
-       return guide_answer
+        return guide_answer
     
     # 2️⃣ TOOLS
     tool_answer = tools_brain(message)
