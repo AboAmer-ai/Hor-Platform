@@ -133,7 +133,8 @@ def tools_brain(message):
         return get_jobs()
 
     if tool == "search_jobs":
-        return search_jobs(message)
+        keyword = message.replace("ابحث عن", "").replace("وظيفة", "").strip()
+        return search_jobs(keyword)
 
     if tool == "add_job":
         return "لإضافة وظيفة انتقل إلى صفحة نشر وظيفة داخل المنصة."
