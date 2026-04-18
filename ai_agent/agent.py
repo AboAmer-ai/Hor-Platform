@@ -152,6 +152,11 @@ def run_agent(user_id, message):
     if faq_answer:
         return faq_answer
 
+    # GUIDE BRAIN
+    guide_answer = guide_brain(message)
+    if guide_answer:
+       return guide_answer
+    
     # 2️⃣ TOOLS
     tool_answer = tools_brain(message)
     if tool_answer:
