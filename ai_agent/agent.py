@@ -1,4 +1,4 @@
-import os
+الوظrundefndef os
 import requests
 from .prompts import SYSTEM_PROMPT
 from .memory import save_memory, get_memory
@@ -60,7 +60,7 @@ def detect_tool(message: str):
 
     return None
 
-الوظrundef run_agent(user_id, message):
+def run_agent(user_id, message):
 
     # 1️⃣ FAQ BRAIN
     faq_answer = search_faq(message)
@@ -113,4 +113,5 @@ def detect_tool(message: str):
     save_memory(user_id, f"User: {message}")
     save_memory(user_id, f"Assistant: {reply}")
 
+    return reply
     return replyply
