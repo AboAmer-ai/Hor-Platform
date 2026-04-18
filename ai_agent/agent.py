@@ -1,4 +1,4 @@
-الوظrundefndef os
+import os
 import requests
 from .prompts import SYSTEM_PROMPT
 from .memory import save_memory, get_memory
