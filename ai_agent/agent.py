@@ -1,5 +1,7 @@
 import os
 import requests
+import random
+
 from .prompts import SYSTEM_PROMPT
 from .memory import save_memory, get_memory
 from .tools import get_jobs, search_jobs, add_job
