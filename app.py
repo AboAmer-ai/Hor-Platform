@@ -352,23 +352,10 @@ def ai_chat():
     message = data.get("message", "")
     page = data.get("page", "home")
 
-    # بناء سياق الصفحة
-    system_context = f"""
-انت مساعد داخل منصة توظيف.
-
-الصفحة الحالية: {page}
-
-اذا كانت:
-home → اشرح المنصة وكيف يبدأ المستخدم.
-jobs → ساعد المستخدم اختيار وظيفة مناسبة.
-apply → اشرح خطوات التقديم.
-"""
-
-    final_message = system_context + "\n\n" + message
-
     reply = run_agent(
         user_id="guest",
-        message=final_message
+        message=message,
+        page=page
     )
 
     return {"reply": reply}
