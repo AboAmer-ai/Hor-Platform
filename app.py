@@ -175,29 +175,42 @@ def send_new_job_email(job_title, job_category, job_location):
 
         subject = f"🔥 وظيفة جديدة: {job_title}"
 
+        # تنظيف النص من الرموز المخفية (مهم جدًا)
+        def clean(text):
+            return str(text).replace("\u200f", "").replace("\u200e", "").strip()
+
         body = f"""
 تم نشر وظيفة جديدة في منصة حُر 🚀
 
-📌 الوظيفة: {job_title}
-📂 التصنيف: {job_category}
-📍 الموقع: {job_location}
+📌 الوظيفة: {clean(job_title)}
+📂 التصنيف: {clean(job_category)}
+📍 الموقع: {clean(job_location)}
 
-ادخل المنصة الآن وقدم عليها قبل غيرك 💼
+ادخل المنصة الآن وقدم عليها 💼
 """
 
+        # 🔥 افتح SMTP مرة واحدة فقط
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.starttls()
+        server.login(sender_email, sender_password)
+
         for sub in subscribers:
-            msg = MIMEMultipart()
-            msg["From"] = sender_email
-            msg["To"] = sub["email"]
-            msg["Subject"] = subject
+            try:
+                msg = MIMEMultipart()
+                msg["From"] = sender_email
+                msg["To"] = sub["email"]
+                msg["Subject"] = subject
 
-            msg.attach(MIMEText(body, "plain", "utf-8"))
+                msg.attach(MIMEText(body, "plain", "utf-8"))
 
-            server = smtplib.SMTP("smtp.gmail.com", 587)
-            server.starttls()
-            server.login(sender_email, sender_password)
-            server.sendmail(sender_email, sub["email"], msg.as_string())
-            server.quit()
+                server.sendmail(sender_email, sub["email"], msg.as_string())
+
+            except Exception as inner:
+                print("Failed for:", sub["email"], inner)
+
+        server.quit()
+
+        print("✅ Emails sent successfully")
 
     except Exception as e:
         print("Email error:", e)
