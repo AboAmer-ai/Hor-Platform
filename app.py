@@ -3,6 +3,7 @@ import re
 import psycopg2
 import smtplib
 
+from email_service import send_new_job_email
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from psycopg2.extras import RealDictCursor
