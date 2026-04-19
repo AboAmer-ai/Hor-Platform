@@ -1,7 +1,10 @@
 import os
 import re
 import psycopg2
+import smtplib
 
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from psycopg2.extras import RealDictCursor
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, flash, g
@@ -155,6 +158,50 @@ def ensure_db():
         init_db()
         g.db_initialized = True
 
+# ─────────────────────────────
+# SMTP Emails
+# ─────────────────────────────
+
+def send_new_job_email(job_title, job_category, job_location):
+    try:
+        subscribers = query("SELECT email FROM subscribers", fetchall=True)
+
+        if not subscribers:
+            return
+
+        sender_email = os.getenv("EMAIL_USER")
+        sender_password = os.getenv("EMAIL_PASS")
+
+        subject = f"🔥 وظيفة جديدة: {job_title}"
+
+        body = f"""
+تم نشر وظيفة جديدة في منصة حُر 🚀
+
+📌 الوظيفة: {job_title}
+📂 التصنيف: {job_category}
+📍 الموقع: {job_location}
+
+ادخل المنصة الآن وقدم عليها قبل غيرك 💼
+"""
+
+        for sub in subscribers:
+            msg = MIMEMultipart()
+            msg["From"] = sender_email
+            msg["To"] = sub["email"]
+            msg["Subject"] = subject
+
+            msg.attach(MIMEText(body, "plain", "utf-8"))
+
+            server = smtplib.SMTP("smtp.gmail.com", 587)
+            server.starttls()
+            server.login(sender_email, sender_password)
+            server.sendmail(sender_email, sub["email"], msg.as_string())
+            server.quit()
+
+    except Exception as e:
+        print("Email error:", e)
+
+
 
 # ─────────────────────────────
 # HELPERS (بدون أي تعديل)
@@ -276,6 +323,11 @@ def post_job():
             title, description, budget, currency, category, employer,
             wa_digits, email, ph_digits, website, location
         ))
+        
+        try:
+    send_new_job_email(title, category, location)
+except Exception as e:
+    print("Email notification failed:", e)
 
         flash("تم نشر الوظيفة بنجاح 🎉", "success")
         return redirect(url_for("index"))
