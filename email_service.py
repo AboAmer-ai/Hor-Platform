@@ -5,6 +5,9 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 
+# =========================
+# GET SUBSCRIBERS
+# =========================
 def get_subscribers():
 
     db = psycopg2.connect(
@@ -15,7 +18,7 @@ def get_subscribers():
     cur = db.cursor()
     cur.execute("SELECT email FROM subscribers")
 
-    emails = [row[0] for row in cur.fetchall()]
+    emails = [row[0] for row in cur.fetchall() if row[0]]
 
     cur.close()
     db.close()
@@ -23,6 +26,25 @@ def get_subscribers():
     return emails
 
 
+# =========================
+# CLEAN TEXT (important for Arabic hidden chars)
+# =========================
+def clean_text(text):
+    if not text:
+        return ""
+
+    # إزالة رموز الاتجاه المخفية RTL/LTR
+    return (
+        str(text)
+        .replace("\u200f", "")
+        .replace("\u200e", "")
+        .strip()
+    )
+
+
+# =========================
+# SEND EMAIL TO ALL SUBSCRIBERS
+# =========================
 def send_new_job_email(title, category, location):
 
     EMAIL_USER = os.getenv("EMAIL_USER")
@@ -34,32 +56,37 @@ def send_new_job_email(title, category, location):
         print("No subscribers found")
         return
 
-    subject = "وظيفة جديدة في منصة حر 🚀"
+    subject = "📢 وظيفة جديدة في منصة حُر"
 
     body = f"""
-تم نشر وظيفة جديدة:
+تم نشر وظيفة جديدة في المنصة
 
-العنوان: {title}
-التصنيف: {category}
-الموقع: {location}
+العنوان: {clean_text(title)}
+التصنيف: {clean_text(category)}
+الموقع: {clean_text(location)}
 
-ادخل المنصة الآن للتقديم.
+ادخل المنصة الآن للتقديم 🚀
 """
 
-    msg = MIMEMultipart()
-    msg["From"] = EMAIL_USER
-    msg["Subject"] = subject
+    try:
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.starttls()
+        server.login(EMAIL_USER, EMAIL_PASS)
 
-    msg.attach(MIMEText(body, "plain", "utf-8"))
+        for email in subscribers:
 
-    server = smtplib.SMTP("smtp.gmail.com", 587)
-    server.starttls()
-    server.login(EMAIL_USER, EMAIL_PASS)
+            msg = MIMEMultipart()
+            msg["From"] = EMAIL_USER
+            msg["To"] = email
+            msg["Subject"] = subject
 
-    for email in subscribers:
-        msg["To"] = email
-        server.sendmail(EMAIL_USER, email, msg.as_string())
+            msg.attach(MIMEText(body, "plain", "utf-8"))
 
-    server.quit()
+            server.sendmail(EMAIL_USER, email, msg.as_string())
 
-    print("✅ Email notification sent")
+        server.quit()
+
+        print("✅ Email notification sent to all subscribers")
+
+    except Exception as e:
+        print("Email error:", e)
