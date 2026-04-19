@@ -192,7 +192,7 @@ def run_agent(user_id, message, page="home"):
     # 3️⃣ ONLINE AI
     history = get_memory(user_id)
 
-    prompt = SYSTEM_PROMPT + "\n\n"
+    prompt = SYSTEM_PROMPT + f"\n\nالصفحة الحالية: {page}\n\n"
 
     for h in history[-6:]:
         prompt += h + "\n"
