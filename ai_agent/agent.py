@@ -172,7 +172,7 @@ def tools_brain(message):
 # MAIN AGENT
 # =========================
 
-def run_agent(user_id, message):
+def run_agent(user_id, message, page="home"):
 
     # 1️⃣ FAQ
     faq_answer = search_faq(message)
