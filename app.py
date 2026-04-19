@@ -3,6 +3,7 @@ import re
 import psycopg2
 import smtplib
 
+from email import encoders
 from email_service import send_new_job_email
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -177,14 +178,14 @@ def send_new_job_email(job_title, job_category, job_location):
 
         # تنظيف النص من الرموز المخفية (مهم جدًا)
         def clean(text):
-           return str(text).replace("\u200f", "").replace("\u200e", "").strip()
+            return str(text).replace("\u200f", "").replace("\u200e", "").strip()
 
         body = f"""
 تم نشر وظيفة جديدة في منصة حُر 🚀
 
-📌 الوظيفة: {clean(job_title)}
-📂 التصنيف: {clean(job_category)}
-📍 الموقع: {clean(job_location)}
+📌 الوظيفة: {clean_text(job_title)}
+📂 التصنيف: {clean_text(job_category)}
+📍 الموقع: {clean_text(job_location)}
 
 ادخل المنصة الآن وقدم عليها 💼
 """
@@ -203,7 +204,9 @@ def send_new_job_email(job_title, job_category, job_location):
 
                 msg.attach(MIMEText(body, "plain", "utf-8"))
 
-                server.sendmail(sender_email, sub["email"], msg.as_string())
+                raw_msg = msg.as_bytes()
+
+                server.sendmail(sender_email, sub["email"], raw_msg)
 
             except Exception as inner:
                 print("Failed for:", sub["email"], inner)
