@@ -1,65 +1,65 @@
 import os
 import smtplib
-
+import psycopg2
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from email.header import Header
 
-from app import query
 
-EMAIL_USER = os.getenv("EMAIL_USER")
-EMAIL_PASS = os.getenv("EMAIL_PASS")
+def get_subscribers():
+
+    db = psycopg2.connect(
+        os.environ.get("DATABASE_URL"),
+        sslmode="require"
+    )
+
+    cur = db.cursor()
+    cur.execute("SELECT email FROM subscribers")
+
+    emails = [row[0] for row in cur.fetchall()]
+
+    cur.close()
+    db.close()
+
+    return emails
 
 
 def send_new_job_email(title, category, location):
 
-    subscribers = query(
-        "SELECT email FROM subscribers",
-        fetchall=True
-    )
+    EMAIL_USER = os.getenv("EMAIL_USER")
+    EMAIL_PASS = os.getenv("EMAIL_PASS")
+
+    subscribers = get_subscribers()
 
     if not subscribers:
-        print("No subscribers")
+        print("No subscribers found")
         return
 
-    subject = "📢 وظيفة جديدة على منصة حُر"
+    subject = "وظيفة جديدة في منصة حر 🚀"
 
     body = f"""
 تم نشر وظيفة جديدة:
 
-المسمى: {title}
-التخصص: {category}
+العنوان: {title}
+التصنيف: {category}
 الموقع: {location}
 
-ادخل المنصة الآن للتقديم:
-https://hor-platform1.onrender.com
+ادخل المنصة الآن للتقديم.
 """
 
-    try:
-        server = smtplib.SMTP("smtp.gmail.com", 587)
-        server.starttls()
-        server.login(EMAIL_USER, EMAIL_PASS)
+    msg = MIMEMultipart()
+    msg["From"] = EMAIL_USER
+    msg["Subject"] = subject
 
-        for sub in subscribers:
+    msg.attach(MIMEText(body, "plain", "utf-8"))
 
-            msg = MIMEMultipart()
-            msg["From"] = EMAIL_USER
-            msg["To"] = sub["email"]
+    server = smtplib.SMTP("smtp.gmail.com", 587)
+    server.starttls()
+    server.login(EMAIL_USER, EMAIL_PASS)
 
-            # ✅ FIX ENCODING HERE
-            msg["Subject"] = Header(subject, "utf-8")
+    for email in subscribers:
+        msg["To"] = email
+        server.sendmail(EMAIL_USER, email, msg.as_string())
 
-            msg.attach(MIMEText(body, "plain", "utf-8"))
+    server.quit()
 
-            server.sendmail(
-                EMAIL_USER,
-                sub["email"],
-                msg.as_string()
-            )
-
-        server.quit()
-
-        print("✅ Email notification sent")
-
-    except Exception as e:
-        print("Email error:", e)
+    print("✅ Email notification sent")
