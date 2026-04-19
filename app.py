@@ -325,9 +325,9 @@ def post_job():
         ))
         
         try:
-    send_new_job_email(title, category, location)
+            send_new_job_email(title, category, location)
         except Exception as e:
-    print("Email notification failed:", e)
+            print("Email notification failed:", e)
 
         flash("تم نشر الوظيفة بنجاح 🎉", "success")
         return redirect(url_for("index"))
