@@ -163,6 +163,9 @@ def ensure_db():
 # ─────────────────────────────
 # SMTP Emails
 # ─────────────────────────────
+# تنظيف النص من الرموز المخفية (مهم جدًا)
+        def clean_text(text):
+            return str(text).replace("\u200f", "").replace("\u200e", "").strip()
 
 def send_new_job_email(job_title, job_category, job_location):
     try:
@@ -175,10 +178,6 @@ def send_new_job_email(job_title, job_category, job_location):
         sender_password = os.getenv("EMAIL_PASS")
 
         subject = f"🔥 وظيفة جديدة: {job_title}"
-
-        # تنظيف النص من الرموز المخفية (مهم جدًا)
-        def clean(text):
-            return str(text).replace("\u200f", "").replace("\u200e", "").strip()
 
         body = f"""
 تم نشر وظيفة جديدة في منصة حُر 🚀
