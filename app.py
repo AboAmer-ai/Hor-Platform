@@ -387,6 +387,7 @@ def subscribe():
 
     try:
         query("INSERT INTO subscribers (email) VALUES (%s)", (email,))
+        print("Subscriber saved:", email)
         flash("تم الاشتراك بنجاح", "success")
     except:
         flash("مشترك مسبقاً", "error")
