@@ -164,8 +164,8 @@ def ensure_db():
 # SMTP Emails
 # ─────────────────────────────
 # تنظيف النص من الرموز المخفية (مهم جدًا)
-        def clean_text(text):
-            return str(text).replace("\u200f", "").replace("\u200e", "").strip()
+def clean_text(text):
+    return str(text).replace("\u200f", "").replace("\u200e", "").strip()
 
 def send_new_job_email(job_title, job_category, job_location):
     try:
