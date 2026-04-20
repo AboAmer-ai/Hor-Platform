@@ -76,9 +76,10 @@ def send_new_job_email(title, category, location):
         for email in subscribers:
 
             msg = MIMEMultipart()
-            msg["From"] = EMAIL_USER
-            msg["To"] = email
-            msg["Subject"] = subject
+
+            msg["From"] = str(Header(EMAIL_USER, "utf-8"))
+            msg["To"] = str(Header(email, "utf-8"))
+            msg["Subject"] = str(Header(clean_text(subject), "utf-8"))
 
             msg.attach(MIMEText(body, "plain", "utf-8"))
 
