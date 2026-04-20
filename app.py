@@ -163,59 +163,7 @@ def ensure_db():
 # ─────────────────────────────
 # SMTP Emails
 # ─────────────────────────────
-# تنظيف النص من الرموز المخفية (مهم جدًا)
-def clean_text(text):
-    return str(text).replace("\u200f", "").replace("\u200e", "").strip()
 
-def send_new_job_email(job_title, job_category, job_location):
-    try:
-        subscribers = query("SELECT email FROM subscribers", fetchall=True)
-
-        if not subscribers:
-            return
-
-        sender_email = os.getenv("EMAIL_USER")
-        sender_password = os.getenv("EMAIL_PASS")
-
-        subject = f"🔥 وظيفة جديدة: {job_title}"
-
-        body = f"""
-تم نشر وظيفة جديدة في منصة حُر 🚀
-
-📌 الوظيفة: {clean_text(job_title)}
-📂 التصنيف: {clean_text(job_category)}
-📍 الموقع: {clean_text(job_location)}
-
-ادخل المنصة الآن وقدم عليها 💼
-"""
-
-        # 🔥 افتح SMTP مرة واحدة فقط
-        server = smtplib.SMTP("smtp.gmail.com", 587)
-        server.starttls()
-        server.login(sender_email, sender_password)
-
-        for sub in subscribers:
-            try:
-                msg = MIMEMultipart()
-                msg["From"] = sender_email
-                msg["To"] = sub["email"]
-                msg["Subject"] = subject
-
-                msg.attach(MIMEText(body, "plain", "utf-8"))
-
-                raw_msg = msg.as_bytes()
-
-                server.sendmail(sender_email, sub["email"], raw_msg)
-
-            except Exception as inner:
-                print("Failed for:", sub["email"], inner)
-
-        server.quit()
-
-        print("✅ Emails sent successfully")
-
-    except Exception as e:
-        print("Email error:", e)
 
 
 
