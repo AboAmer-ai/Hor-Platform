@@ -1,4 +1,4 @@
-import os
+def os
 import smtplib
 import psycopg2
 from email.mime.text import MIMEText
@@ -76,7 +76,6 @@ def send_new_job_email(title, category, location):
         for email in subscribers:
 
             msg = MIMEMultipart()
-
             msg["From"] = EMAIL_USER
             msg["To"] = email
             msg["Subject"] = Header(subject, "utf-8")
@@ -86,8 +85,11 @@ def send_new_job_email(title, category, location):
             server.sendmail(
                 EMAIL_USER,
                 email,
-                msg.as_bytes() )
-                server.quit()
+                msg.as_bytes()
+            )
+
+        # 🔥 مهم: خارج اللوب
+        server.quit()
 
         print("✅ Email notification sent to all subscribers")
 
