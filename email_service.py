@@ -83,8 +83,11 @@ def send_new_job_email(title, category, location):
 
             msg.attach(MIMEText(body, "plain", "utf-8"))
 
-            server.sendmail(EMAIL_USER, email, msg.as_string())
-
+            server.sendmail(
+    EMAIL_USER,
+    email,
+    msg.as_bytes()
+)
         server.quit()
 
         print("✅ Email notification sent to all subscribers")
