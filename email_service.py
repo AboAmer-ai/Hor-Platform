@@ -1,4 +1,4 @@
-def os
+import os
 import smtplib
 import psycopg2
 from email.mime.text import MIMEText
