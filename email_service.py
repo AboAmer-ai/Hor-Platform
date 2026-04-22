@@ -89,8 +89,9 @@ def clean_text(text):
 # SEND EMAIL TO ALL SUBSCRIBERS
 # =========================
 def send_new_job_email(title, category, location):
+
     clean_subscribers_db()
-    
+
     EMAIL_USER = os.getenv("EMAIL_USER")
     EMAIL_PASS = os.getenv("EMAIL_PASS")
 
@@ -118,12 +119,13 @@ def send_new_job_email(title, category, location):
         server.login(EMAIL_USER, EMAIL_PASS)
 
         for email in subscribers:
+
             print("SENDING TO:", repr(email))
-            
+
             msg = MIMEMultipart()
             msg["From"] = EMAIL_USER
             msg["To"] = email
-            msg["Subject"] = Header(subject, "utf-8")
+            msg["Subject"] = str(Header(subject, "utf-8"))
 
             msg.attach(MIMEText(body, "plain", "utf-8"))
 
@@ -133,7 +135,6 @@ def send_new_job_email(title, category, location):
                 msg.as_bytes()
             )
 
-        # 🔥 مهم: خارج اللوب
         server.quit()
 
         print("✅ Email notification sent to all subscribers")
