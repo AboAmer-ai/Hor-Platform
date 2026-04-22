@@ -118,7 +118,8 @@ def send_new_job_email(title, category, location):
         server.login(EMAIL_USER, EMAIL_PASS)
 
         for email in subscribers:
-
+            print("SENDING TO:", repr(email))
+            
             msg = MIMEMultipart()
             msg["From"] = EMAIL_USER
             msg["To"] = email
