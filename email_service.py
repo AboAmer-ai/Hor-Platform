@@ -89,7 +89,8 @@ def clean_text(text):
 # SEND EMAIL TO ALL SUBSCRIBERS
 # =========================
 def send_new_job_email(title, category, location):
-
+    clean_subscribers_db()
+    
     EMAIL_USER = os.getenv("EMAIL_USER")
     EMAIL_PASS = os.getenv("EMAIL_PASS")
 
