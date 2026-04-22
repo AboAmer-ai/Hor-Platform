@@ -6,6 +6,49 @@ from email.mime.multipart import MIMEMultipart
 from email.header import Header
 
 # =========================
+# CLEAN SUBSCRIBERS DATABASE
+# =========================
+def clean_subscribers_db():
+
+    db = psycopg2.connect(
+        os.environ.get("DATABASE_URL"),
+        sslmode="require"
+    )
+
+    cur = db.cursor()
+    cur.execute("SELECT id, email FROM subscribers")
+
+    rows = cur.fetchall()
+
+    fixed = 0
+
+    for row_id, email in rows:
+
+        if not email:
+            continue
+
+        cleaned = (
+            str(email)
+            .replace("\u200f", "")
+            .replace("\u200e", "")
+            .replace("\xa0", "")
+            .strip()
+        )
+
+        if cleaned != email:
+            cur.execute(
+                "UPDATE subscribers SET email=%s WHERE id=%s",
+                (cleaned, row_id)
+            )
+            fixed += 1
+
+    db.commit()
+    cur.close()
+    db.close()
+
+    print(f"✅ Cleaned {fixed} subscriber emails")
+
+# =========================
 # GET SUBSCRIBERS
 # =========================
 def get_subscribers():
