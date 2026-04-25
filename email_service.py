@@ -152,3 +152,4 @@ def send_new_job_email(title, category, location):
 
     except Exception as e:
         print("Email error:", e)
+        print("✅ EMAIL SERVICE LOADED")
