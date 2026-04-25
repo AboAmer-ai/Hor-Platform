@@ -1,23 +1,31 @@
 import os
 import smtplib
 import psycopg2
+
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.header import Header
+
+
+# =========================
+# DATABASE CONNECTION
+# =========================
+def get_db_connection():
+    return psycopg2.connect(
+        os.environ.get("DATABASE_URL"),
+        sslmode="require"
+    )
+
 
 # =========================
 # CLEAN SUBSCRIBERS DATABASE
 # =========================
 def clean_subscribers_db():
 
-    db = psycopg2.connect(
-        os.environ.get("DATABASE_URL"),
-        sslmode="require"
-    )
-
+    db = get_db_connection()
     cur = db.cursor()
-    cur.execute("SELECT id, email FROM subscribers")
 
+    cur.execute("SELECT id, email FROM subscribers")
     rows = cur.fetchall()
 
     fixed = 0
@@ -48,20 +56,22 @@ def clean_subscribers_db():
 
     print(f"✅ Cleaned {fixed} subscriber emails")
 
+
 # =========================
 # GET SUBSCRIBERS
 # =========================
 def get_subscribers():
 
-    db = psycopg2.connect(
-        os.environ.get("DATABASE_URL"),
-        sslmode="require"
-    )
-
+    db = get_db_connection()
     cur = db.cursor()
+
     cur.execute("SELECT email FROM subscribers")
 
-    emails = [row[0] for row in cur.fetchall() if row[0]]
+    emails = [
+        row[0].strip()
+        for row in cur.fetchall()
+        if row[0]
+    ]
 
     cur.close()
     db.close()
@@ -70,74 +80,76 @@ def get_subscribers():
 
 
 # =========================
-# CLEAN TEXT (important for Arabic hidden chars)
+# CLEAN TEXT
 # =========================
 def clean_text(text):
+
     if not text:
         return ""
 
-    # إزالة رموز الاتجاه المخفية RTL/LTR
     return (
         str(text)
         .replace("\u200f", "")
         .replace("\u200e", "")
+        .replace("\xa0", "")
         .strip()
     )
 
 
 # =========================
-# SEND EMAIL TO ALL SUBSCRIBERS
+# SEND SINGLE EMAIL
 # =========================
-def send_new_job_email(title, category, location):
+def send_email(to_email, subject, body):
 
-    clean_subscribers_db()
+    SMTP_SERVER = os.environ.get("SMTP_SERVER")
+    SMTP_PORT = int(os.environ.get("SMTP_PORT", 587))
+    SMTP_USER = os.environ.get("SMTP_USER")
+    SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD")
 
-    EMAIL_USER = os.getenv("EMAIL_USER")
-    EMAIL_PASS = os.getenv("EMAIL_PASS")
+    subject = clean_text(subject)
+    body = clean_text(body)
+    to_email = clean_text(to_email)
 
-    subscribers = get_subscribers()
+    msg = MIMEMultipart()
+    msg["From"] = SMTP_USER
+    msg["To"] = to_email
+    msg["Subject"] = Header(subject, "utf-8")
 
-    if not subscribers:
-        print("No subscribers found")
-        return
-
-    subject = "📢 وظيفة جديدة في منصة حُر"
-
-    body = f"""
-تم نشر وظيفة جديدة في المنصة
-
-العنوان: {clean_text(title)}
-التصنيف: {clean_text(category)}
-الموقع: {clean_text(location)}
-
-ادخل المنصة الآن للتقديم 🚀
-"""
+    msg.attach(MIMEText(body, "html", "utf-8"))
 
     try:
-        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
         server.starttls()
-        server.login(EMAIL_USER, EMAIL_PASS)
+        server.login(SMTP_USER, SMTP_PASSWORD)
 
-        for email in subscribers:
-
-            print("SENDING TO:", repr(email))
-
-            msg = MIMEMultipart()
-            msg["From"] = EMAIL_USER
-            msg["To"] = email
-            msg["Subject"] = str(Header(subject, "utf-8"))
-
-            msg.attach(MIMEText(body, "plain", "utf-8"))
-
-            server.sendmail(
-                EMAIL_USER,
-                email,
-                msg.as_bytes()
-            )
+        server.sendmail(
+            SMTP_USER,
+            to_email,
+            msg.as_string()
+        )
 
         server.quit()
 
-        print("✅ Email notification sent to all subscribers")
+        print(f"✅ Sent to {to_email}")
 
     except Exception as e:
-        print("Email error:", e)
+        print(f"❌ Failed {to_email} -> {e}")
+
+
+# =========================
+# SEND CAMPAIGN
+# =========================
+def send_campaign(subject, body):
+
+    print("🚀 Starting campaign...")
+
+    clean_subscribers_db()
+
+    subscribers = get_subscribers()
+
+    print(f"📨 Subscribers count: {len(subscribers)}")
+
+    for email in subscribers:
+        send_email(email, subject, body)
+
+    print("✅ Campaign finished")
