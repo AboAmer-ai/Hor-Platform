@@ -18,6 +18,8 @@ from flask import request, jsonify
 
 app = Flask(__name__)
 
+clean_subscribers_db()
+
 hf_token = os.getenv("HF_TOKEN")
 
 app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key")
@@ -343,11 +345,20 @@ def apply(job_id):
     flash("تم إرسال الطلب بنجاح ✅", "success")
     return redirect(url_for("index"))
 
+#تنضيف الايميل عند الاشتراك
+def clean_email(email):
+    return (
+        str(email)
+        .replace("\u200f", "")
+        .replace("\u200e", "")
+        .replace("\xa0", "")
+        .strip()
+    )
 
 @app.route("/subscribe", methods=["POST"])
 def subscribe():
-    email = request.form.get("email", "").strip()
-
+    #email = request.form.get("email", "").strip()
+    email = clean_email(request.form.get("email", ""))
     try:
         query("INSERT INTO subscribers (email) VALUES (%s)", (email,))
         print("Subscriber saved:", email)
