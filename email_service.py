@@ -1,7 +1,6 @@
 import os
 import smtplib
 import psycopg2
-
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.header import Header
@@ -80,7 +79,7 @@ def get_subscribers():
 
 
 # =========================
-# CLEAN TEXT
+# CLEAN TEXT (Arabic Fix)
 # =========================
 def clean_text(text):
 
@@ -97,59 +96,59 @@ def clean_text(text):
 
 
 # =========================
-# SEND SINGLE EMAIL
+# SEND EMAIL FUNCTION
 # =========================
-def send_email(to_email, subject, body):
+def send_new_job_email(title, category, location):
 
-    SMTP_SERVER = os.environ.get("SMTP_SERVER")
-    SMTP_PORT = int(os.environ.get("SMTP_PORT", 587))
-    SMTP_USER = os.environ.get("SMTP_USER")
-    SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD")
-
-    subject = clean_text(subject)
-    body = clean_text(body)
-    to_email = clean_text(to_email)
-
-    msg = MIMEMultipart()
-    msg["From"] = SMTP_USER
-    msg["To"] = to_email
-    msg["Subject"] = Header(subject, "utf-8")
-
-    msg.attach(MIMEText(body, "html", "utf-8"))
-
-    try:
-        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
-        server.starttls()
-        server.login(SMTP_USER, SMTP_PASSWORD)
-
-        server.sendmail(
-            SMTP_USER,
-            to_email,
-            msg.as_string()
-        )
-
-        server.quit()
-
-        print(f"✅ Sent to {to_email}")
-
-    except Exception as e:
-        print(f"❌ Failed {to_email} -> {e}")
-
-
-# =========================
-# SEND CAMPAIGN
-# =========================
-def send_campaign(subject, body):
-
-    print("🚀 Starting campaign...")
-
+    # تنظيف قاعدة البيانات قبل الإرسال
     clean_subscribers_db()
+
+    EMAIL_USER = os.getenv("EMAIL_USER")
+    EMAIL_PASS = os.getenv("EMAIL_PASS")
 
     subscribers = get_subscribers()
 
-    print(f"📨 Subscribers count: {len(subscribers)}")
+    if not subscribers:
+        print("No subscribers found")
+        return
 
-    for email in subscribers:
-        send_email(email, subject, body)
+    subject = "📢 وظيفة جديدة في منصة حر"
 
-    print("✅ Campaign finished")
+    body = f"""
+تم نشر وظيفة جديدة في المنصة
+
+العنوان: {clean_text(title)}
+التصنيف: {clean_text(category)}
+الموقع: {clean_text(location)}
+
+ادخل المنصة الآن للتقديم 🚀
+"""
+
+    try:
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.starttls()
+        server.login(EMAIL_USER, EMAIL_PASS)
+
+        for email in subscribers:
+
+            print("SENDING TO:", repr(email))
+
+            msg = MIMEMultipart()
+            msg["From"] = EMAIL_USER
+            msg["To"] = email
+            msg["Subject"] = Header(subject, "utf-8")
+
+            msg.attach(MIMEText(body, "plain", "utf-8"))
+
+            server.sendmail(
+                EMAIL_USER,
+                email,
+                msg.as_bytes()
+            )
+
+        server.quit()
+
+        print("✅ Email notification sent")
+
+    except Exception as e:
+        print("Email error:", e)
