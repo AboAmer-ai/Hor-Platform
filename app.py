@@ -16,9 +16,9 @@ from dotenv import load_dotenv
 load_dotenv()
 from flask import request, jsonify
 
-app = Flask(__name__)
-
 clean_subscribers_db()
+
+app = Flask(__name__)
 
 hf_token = os.getenv("HF_TOKEN")
 
