@@ -214,7 +214,7 @@ def jobs_to_dicts(rows):
 # ROUTES (بدون أي تغيير)
 # ─────────────────────────────
 #Admin login
-@app.route("/admin", methods=["GET", "POST"])
+@app.route("/admin/login", methods=["GET", "POST"])
 def admin_login():
     if request.method == "POST":
         password = request.form.get("password")
@@ -284,7 +284,6 @@ def toggle_job(job_id):
     query("UPDATE jobs SET status=%s WHERE id=%s", (new_status, job_id))
 
     return redirect(url_for("admin_jobs"))
-
 
 
 
