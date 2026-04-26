@@ -174,6 +174,11 @@ def ensure_db():
 # HELPERS (بدون أي تعديل)
 # ─────────────────────────────
 
+def admin_required():
+    if not session.get("admin"):
+        return redirect(url_for("admin_login"))
+
+
 def allowed_cv(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() == "pdf"
 
@@ -238,6 +243,51 @@ def admin_dashboard():
 def admin_logout():
     session.clear()
     return redirect(url_for("admin_login"))
+
+@app.route("/admin/jobs")
+def admin_jobs():
+    if not session.get("admin"):
+        return redirect(url_for("admin_login"))
+
+    jobs = query("SELECT * FROM jobs ORDER BY id DESC", fetchall=True)
+
+    return render_template("admin_jobs.html", jobs=jobs)
+
+@app.route("/admin/subscribers")
+def admin_subscribers():
+    if not session.get("admin"):
+        return redirect(url_for("admin_login"))
+
+    subs = query("SELECT * FROM subscribers ORDER BY id DESC", fetchall=True)
+
+    return render_template("admin_subscribers.html", subs=subs)
+
+
+@app.route("/admin/job/delete/<int:job_id>")
+def delete_job(job_id):
+    if not session.get("admin"):
+        return redirect(url_for("admin_login"))
+
+    query("DELETE FROM jobs WHERE id=%s", (job_id,))
+    return redirect(url_for("admin_jobs"))
+
+
+@app.route("/admin/job/toggle/<int:job_id>")
+def toggle_job(job_id):
+    if not session.get("admin"):
+        return redirect(url_for("admin_login"))
+
+    job = query("SELECT status FROM jobs WHERE id=%s", (job_id,), fetchone=True)
+
+    new_status = "hidden" if job["status"] == "active" else "active"
+
+    query("UPDATE jobs SET status=%s WHERE id=%s", (new_status, job_id))
+
+    return redirect(url_for("admin_jobs"))
+
+
+
+
 
 
 @app.route("/")
