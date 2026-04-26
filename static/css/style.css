@@ -1568,5 +1568,87 @@ footer {
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(5px); }
   to { opacity: 1; transform: translateY(0); }
+
+#Admin control Panel
+
+@media (max-width: 900px) {
+    .cards{
+        grid-template-columns: 1fr;
+    }
+
+    table{
+        font-size: 14px;
+        display:block;
+        overflow-x:auto;
+        white-space:nowrap;
+    }
+
+    header{
+        flex-direction:column;
+        gap:10px;
+        text-align:center;
+    }
 }
+
+@media (max-width: 600px){
+    .box{
+        width:90%;
+        padding:20px;
+    }
+}
+}
+}
+
+.login-container{
+    width: 100%;
+
+    min-height: 100vh;
+
+@media (max-width: 900px){
+    .dashboard-cards{
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .card{
+        width: 100%;
+    }
+
+    table{
+        font-size: 13px;
+        overflow-x: auto;
+        display: block;
+    }
+
+    .dashboard{
+        padding: 10px;
+    }
+}    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.login-box{
+    width: 100%;
+    max-width: 400px;
+    background: white;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+
+@media (max-width: 600px){
+    .header{
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+
+    .logout-btn{
+        position: static;
+        margin-top: 10px;
+    }
 }
