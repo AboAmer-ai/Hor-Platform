@@ -15,8 +15,11 @@ from ai_agent.agent import run_agent
 from dotenv import load_dotenv
 load_dotenv()
 from flask import request, jsonify
+from flask import session
 
 app = Flask(__name__)
+
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "5478Om6427H")
 
 hf_token = os.getenv("HF_TOKEN")
 
@@ -205,6 +208,37 @@ def jobs_to_dicts(rows):
 # ─────────────────────────────
 # ROUTES (بدون أي تغيير)
 # ─────────────────────────────
+#Admin login
+@app.route("/admin", methods=["GET", "POST"])
+def admin_login():
+    if request.method == "POST":
+        password = request.form.get("password")
+
+        if password == ADMIN_PASSWORD:
+            session["admin"] = True
+            return redirect(url_for("admin_dashboard"))
+        else:
+            flash("كلمة المرور غير صحيحة", "error")
+
+    return render_template("admin_login.html")
+
+#Admin Dashboard
+@app.route("/admin/dashboard")
+def admin_dashboard():
+    if not session.get("admin"):
+        return redirect(url_for("admin_login"))
+
+    jobs = query("SELECT * FROM jobs ORDER BY id DESC", fetchall=True)
+    subs = query("SELECT * FROM subscribers ORDER BY id DESC", fetchall=True)
+
+    return render_template("admin_dashboard.html", jobs=jobs, subs=subs)
+
+#Logout
+@app.route("/admin/logout")
+def admin_logout():
+    session.clear()
+    return redirect(url_for("admin_login"))
+
 
 @app.route("/")
 def index():
