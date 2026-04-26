@@ -1,25 +1,41 @@
 <h2>إدارة الوظائف</h2>
 
 <table border="1" width="100%">
-<tr>
-<th>العنوان</th>
-<th>التصنيف</th>
-<th>الإجراء</th>
-</tr>
+    <tr>
+        <th>العنوان</th>
+        <th>التصنيف</th>
+        <th>الحالة</th>
+        <th>إجراءات</th>
+    </tr>
 
-{% for job in jobs %}
-<tr>
-<td>
-    <a href="/admin/job/delete/{{ job.id }}">🗑 حذف</a> |
-    <a href="/admin/job/toggle/{{ job.id }}">
-        {% if job.status == 'active' %}
-            🙈 إخفاء
-        {% else %}
-            👁 إظهار
-        {% endif %}
-    </a>
-</td>
-</tr>
-{% endfor %}
+    {% for job in jobs %}
+    <tr>
+        <td>{{ job.title }}</td>
+        <td>{{ job.category }}</td>
+        <td>
+            {% if job.status == "active" %}
+                🟢 نشطة
+            {% else %}
+                ⚫ مخفية
+            {% endif %}
+        </td>
+
+        <td>
+            <a href="/admin/job/delete/{{ job.id }}"
+               onclick="return confirm('هل تريد حذف الوظيفة؟')">
+               🗑 حذف
+            </a>
+
+            |
+
+            <a href="/admin/job/toggle/{{ job.id }}">
+                {% if job.status == "active" %}
+                    🙈 إخفاء
+                {% else %}
+                    👁 إظهار
+                {% endif %}
+            </a>
+        </td>
+    </tr>
+    {% endfor %}
 </table>
-
