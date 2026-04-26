@@ -1,1 +1,107 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>لوحة التحكم</title>
+<style>
+body{
+    font-family:"Tajawal",sans-serif;
+    background:#f8fafc;
+    margin:0;
+}
 
+header{
+    background:#5b21b6;
+    color:#fff;
+    padding:15px;
+    display:flex;
+    justify-content:space-between;
+}
+
+.container{
+    padding:20px;
+}
+
+.cards{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:15px;
+}
+
+.card{
+    background:#fff;
+    padding:20px;
+    border-radius:16px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.05);
+    text-align:center;
+}
+
+table{
+    width:100%;
+    margin-top:20px;
+    background:#fff;
+    border-radius:12px;
+    overflow:hidden;
+}
+
+th,td{
+    padding:12px;
+    border-bottom:1px solid #eee;
+    text-align:center;
+}
+
+a{
+    text-decoration:none;
+    color:#5b21b6;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h3>لوحة التحكم</h3>
+    <a href="/admin/logout" style="color:#fff;">تسجيل خروج</a>
+</header>
+
+<div class="container">
+
+<div class="cards">
+    <div class="card">
+        <h2>{{ jobs|length }}</h2>
+        <p>الوظائف</p>
+    </div>
+
+    <div class="card">
+        <h2>{{ subs|length }}</h2>
+        <p>المشتركين</p>
+    </div>
+
+    <div class="card">
+        <h2>✔</h2>
+        <p>النظام يعمل</p>
+    </div>
+</div>
+
+<h3>آخر الوظائف</h3>
+
+<table>
+<tr>
+<th>العنوان</th>
+<th>التصنيف</th>
+<th>الحالة</th>
+</tr>
+
+{% for job in jobs %}
+<tr>
+<td>{{ job.title }}</td>
+<td>{{ job.category }}</td>
+<td>{{ job.status }}</td>
+</tr>
+{% endfor %}
+</table>
+
+</div>
+
+</body>
+</html>

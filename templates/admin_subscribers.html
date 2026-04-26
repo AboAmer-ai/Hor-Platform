@@ -1,1 +1,7 @@
+<h2>المشتركين</h2>
 
+<ul>
+{% for sub in subs %}
+    <li>{{ sub.email }}</li>
+{% endfor %}
+</ul>
