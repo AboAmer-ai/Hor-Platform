@@ -1,3 +1,4 @@
+print("🔥🔥🔥 NEW VERSION LOADED 🔥🔥🔥")
 import os
 import re
 import psycopg2
