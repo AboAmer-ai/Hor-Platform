@@ -1652,3 +1652,21 @@ footer {
         margin-top: 10px;
     }
 }
+
+@media(max-width:900px){
+    .cards{
+        grid-template-columns:1fr;
+    }
+
+    table{
+        display:block;
+        overflow-x:auto;
+        white-space:nowrap;
+    }
+
+    header{
+        flex-direction:column;
+        gap:10px;
+        text-align:center;
+    }
+}
