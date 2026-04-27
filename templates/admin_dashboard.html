@@ -1,29 +1,40 @@
-<table>
-<tr>
-<th>العنوان</th>
-<th>التصنيف</th>
-<th>الحالة</th>
-<th>الإجراءات</th>
-</tr>
+<div class="bg-white p-6 rounded-lg shadow-lg">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">إدارة الخدمات</h2>
+        <a href="/logout" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded shadow transition">تسجيل الخروج</a>
+    </div>
 
-{% for job in jobs %}
-<tr>
-<td>{{ job.title }}</td>
-<td>{{ job.category }}</td>
-<td>{{ job.status }}</td>
-
-<td>
-    <a href="/admin/job/toggle/{{ job.id }}" style="margin-left:10px;">
-        تغيير الحالة
-    </a>
-
-    <a href="/admin/job/delete/{{ job.id }}" 
-       onclick="return confirm('هل أنت متأكد من الحذف؟')" 
-       style="color:red;">
-        حذف
-    </a>
-</td>
-
-</tr>
-{% endfor %}
-</table>
+    <div class="overflow-x-auto">
+        <table class="w-full text-right border-collapse">
+            <thead>
+                <tr class="bg-gray-100 text-gray-700 uppercase text-sm leading-normal border-b">
+                    <th class="py-3 px-6 text-right">العنوان</th>
+                    <th class="py-3 px-6 text-center">التصنيف</th>
+                    <th class="py-3 px-6 text-center">الحالة</th>
+                    <th class="py-3 px-6 text-center">الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody class="text-gray-600 text-sm font-light">
+                <tr class="border-b border-gray-200 hover:bg-gray-50 transition">
+                    <td class="py-3 px-6 text-right font-medium text-gray-800 underline decoration-blue-200">
+                        مهندس ذكاء اصطناعي
+                    </td>
+                    <td class="py-3 px-6 text-center text-blue-600 font-semibold">
+                        برمجة
+                    </td>
+                    <td class="py-3 px-6 text-center">
+                        <span class="bg-green-100 text-green-700 py-1 px-3 rounded-full text-xs font-bold">Active</span>
+                    </td>
+                    <td class="py-3 px-6 text-center flex justify-center gap-2">
+                        <button class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-4 rounded transition text-xs shadow-sm">
+                            تغيير الحالة
+                        </button>
+                        <button class="bg-red-500 hover:bg-red-600 text-white py-1 px-4 rounded transition text-xs shadow-sm">
+                            حذف
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+        </table>
+    </div>
+</div>
