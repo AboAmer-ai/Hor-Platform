@@ -1,40 +1,149 @@
-<div class="bg-white p-6 rounded-lg shadow-lg">
-    <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold text-gray-800">إدارة الخدمات</h2>
-        <a href="/logout" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded shadow transition">تسجيل الخروج</a>
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>لوحة التحكم</title>
+
+<style>
+body{
+    font-family:"Tajawal",sans-serif;
+    background:#f8fafc;
+    margin:0;
+}
+
+/* HEADER */
+header{
+    background:#5b21b6;
+    color:#fff;
+    padding:15px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+/* CONTAINER */
+.container{
+    padding:20px;
+}
+
+/* CARDS */
+.cards{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:15px;
+}
+
+.card{
+    background:#fff;
+    padding:20px;
+    border-radius:16px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.05);
+    text-align:center;
+}
+
+/* TABLE */
+table{
+    width:100%;
+    margin-top:20px;
+    background:#fff;
+    border-radius:12px;
+    overflow:hidden;
+    border-collapse:collapse;
+}
+
+th,td{
+    padding:12px;
+    border-bottom:1px solid #eee;
+    text-align:center;
+}
+
+/* ACTION BUTTONS */
+.btn{
+    padding:6px 12px;
+    border-radius:8px;
+    font-size:13px;
+    display:inline-block;
+}
+
+.btn-delete{
+    background:#ef4444;
+    color:#fff;
+}
+
+.btn-toggle{
+    background:#5b21b6;
+    color:#fff;
+}
+
+a{
+    text-decoration:none;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h3>لوحة التحكم</h3>
+
+    <!-- إصلاح اللوج أوت -->
+    <a href="{{ url_for('admin_logout') }}" style="color:#fff;">
+        تسجيل خروج
+    </a>
+</header>
+
+<div class="container">
+
+<div class="cards">
+    <div class="card">
+        <h2>{{ jobs|length }}</h2>
+        <p>الوظائف</p>
     </div>
 
-    <div class="overflow-x-auto">
-        <table class="w-full text-right border-collapse">
-            <thead>
-                <tr class="bg-gray-100 text-gray-700 uppercase text-sm leading-normal border-b">
-                    <th class="py-3 px-6 text-right">العنوان</th>
-                    <th class="py-3 px-6 text-center">التصنيف</th>
-                    <th class="py-3 px-6 text-center">الحالة</th>
-                    <th class="py-3 px-6 text-center">الإجراءات</th>
-                </tr>
-            </thead>
-            <tbody class="text-gray-600 text-sm font-light">
-                <tr class="border-b border-gray-200 hover:bg-gray-50 transition">
-                    <td class="py-3 px-6 text-right font-medium text-gray-800 underline decoration-blue-200">
-                        مهندس ذكاء اصطناعي
-                    </td>
-                    <td class="py-3 px-6 text-center text-blue-600 font-semibold">
-                        برمجة
-                    </td>
-                    <td class="py-3 px-6 text-center">
-                        <span class="bg-green-100 text-green-700 py-1 px-3 rounded-full text-xs font-bold">Active</span>
-                    </td>
-                    <td class="py-3 px-6 text-center flex justify-center gap-2">
-                        <button class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-4 rounded transition text-xs shadow-sm">
-                            تغيير الحالة
-                        </button>
-                        <button class="bg-red-500 hover:bg-red-600 text-white py-1 px-4 rounded transition text-xs shadow-sm">
-                            حذف
-                        </button>
-                    </td>
-                </tr>
-                </tbody>
-        </table>
+    <div class="card">
+        <h2>{{ subs|length }}</h2>
+        <p>المشتركين</p>
+    </div>
+
+    <div class="card">
+        <h2>✔</h2>
+        <p>النظام يعمل</p>
     </div>
 </div>
+
+<h3>آخر الوظائف</h3>
+
+<table>
+<tr>
+<th>العنوان</th>
+<th>التصنيف</th>
+<th>الحالة</th>
+<th>الإجراءات</th>
+</tr>
+
+{% for job in jobs %}
+<tr>
+<td>{{ job.title }}</td>
+<td>{{ job.category }}</td>
+<td>{{ job.status }}</td>
+
+<td>
+    <a class="btn btn-toggle" href="/admin/job/toggle/{{ job.id }}">
+        تغيير
+    </a>
+
+    <a class="btn btn-delete"
+       href="/admin/job/delete/{{ job.id }}"
+       onclick="return confirm('هل أنت متأكد؟')">
+        حذف
+    </a>
+</td>
+
+</tr>
+{% endfor %}
+</table>
+
+</div>
+
+</body>
+</html>
