@@ -93,15 +93,29 @@ def close_db(exc):
         db.close()
 
 
+# ======================
+# QUERY HELPER
+# ======================
+
 def query(sql, params=None, fetchone=False, fetchall=False):
+
     db = get_db()
     cur = db.cursor(cursor_factory=RealDictCursor)
+
     cur.execute(sql, params or ())
 
+    result = None
+
     if fetchone:
-        return cur.fetchone()
-    if fetchall:
-        return cur.fetchall()
+        result = cur.fetchone()
+
+    elif fetchall:
+        result = cur.fetchall()
+
+    db.commit()   # مهم جداً للـ delete/update
+    cur.close()
+
+    return result
 
 
 # ─────────────────────────────
@@ -213,6 +227,33 @@ def jobs_to_dicts(rows):
 # ─────────────────────────────
 # ROUTES (بدون أي تغيير)
 # ─────────────────────────────
+@app.route("/")
+def index():
+    cat = request.args.get("category", "")
+
+    total_jobs = query("SELECT COUNT(*) FROM jobs", fetchone=True)["count"]
+
+    if cat:
+        rows = query(
+            "SELECT * FROM jobs WHERE category=%s ORDER BY id DESC",
+            (cat,),
+            fetchall=True
+        )
+    else:
+        rows = query("SELECT * FROM jobs ORDER BY id DESC", fetchall=True)
+
+    jobs = jobs_to_dicts(rows)
+
+    return render_template(
+        "index.html",
+        jobs=jobs,
+        total_jobs=total_jobs,
+        categories=CATEGORIES,
+        category_icons=CATEGORY_ICONS,
+        selected_category=cat,
+    )
+
+
 #Admin login
 @app.route("/admin/login", methods=["GET", "POST"])
 def admin_login():
@@ -246,12 +287,19 @@ def admin_logout():
 
 @app.route("/admin/jobs")
 def admin_jobs():
+
     if not session.get("admin"):
         return redirect(url_for("admin_login"))
 
-    jobs = query("SELECT * FROM jobs ORDER BY id DESC", fetchall=True)
+    jobs = query(
+        "SELECT id, title, category, status FROM jobs ORDER BY id DESC",
+        fetchall=True
+    )
 
-    return render_template("admin_jobs.html", jobs=jobs)
+    return render_template(
+        "admin_dashboard.html",
+        jobs=jobs
+    )
 
 @app.route("/admin/subscribers")
 def admin_subscribers():
@@ -265,55 +313,41 @@ def admin_subscribers():
 
 @app.route("/admin/job/delete/<int:job_id>")
 def delete_job(job_id):
+
     if not session.get("admin"):
         return redirect(url_for("admin_login"))
 
-    query("DELETE FROM jobs WHERE id=%s", (job_id,))
+    query(
+        "DELETE FROM jobs WHERE id=%s",
+        (job_id,)
+    )
+
     return redirect(url_for("admin_jobs"))
 
 
 @app.route("/admin/job/toggle/<int:job_id>")
 def toggle_job(job_id):
+
     if not session.get("admin"):
         return redirect(url_for("admin_login"))
 
-    job = query("SELECT status FROM jobs WHERE id=%s", (job_id,), fetchone=True)
+    job = query(
+        "SELECT status FROM jobs WHERE id=%s",
+        (job_id,),
+        fetchone=True
+    )
+
+    if not job:
+        return redirect(url_for("admin_jobs"))
 
     new_status = "hidden" if job["status"] == "active" else "active"
 
-    query("UPDATE jobs SET status=%s WHERE id=%s", (new_status, job_id))
+    query(
+        "UPDATE jobs SET status=%s WHERE id=%s",
+        (new_status, job_id)
+    )
 
     return redirect(url_for("admin_jobs"))
-
-
-
-
-
-@app.route("/")
-def index():
-    cat = request.args.get("category", "")
-
-    total_jobs = query("SELECT COUNT(*) FROM jobs", fetchone=True)["count"]
-
-    if cat:
-        rows = query(
-            "SELECT * FROM jobs WHERE category=%s ORDER BY id DESC",
-            (cat,),
-            fetchall=True
-        )
-    else:
-        rows = query("SELECT * FROM jobs ORDER BY id DESC", fetchall=True)
-
-    jobs = jobs_to_dicts(rows)
-
-    return render_template(
-        "index.html",
-        jobs=jobs,
-        total_jobs=total_jobs,
-        categories=CATEGORIES,
-        category_icons=CATEGORY_ICONS,
-        selected_category=cat,
-    )
 
 
 @app.route("/post-job", methods=["GET", "POST"])
