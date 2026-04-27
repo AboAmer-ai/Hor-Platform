@@ -78,6 +78,21 @@ th,td{
 a{
     text-decoration:none;
 }
+
+.logout-btn{
+    background:#ef4444;
+    color:#fff;
+    padding:8px 14px;
+    border-radius:10px;
+    font-weight:700;
+    text-decoration:none;
+    transition:0.2s;
+}
+
+.logout-btn:hover{
+    background:#dc2626;
+}
+
 </style>
 </head>
 
@@ -87,9 +102,9 @@ a{
     <h3>لوحة التحكم</h3>
 
     <!-- إصلاح اللوج أوت -->
-    <a href="{{ url_for('admin_logout') }}" style="color:#fff;">
-        تسجيل خروج
-    </a>
+    <a href="{{ url_for('admin_logout') }}" class="logout-btn">
+    تسجيل خروج
+</a>
 </header>
 
 <div class="container">
