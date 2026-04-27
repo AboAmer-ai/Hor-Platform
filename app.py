@@ -484,6 +484,12 @@ def subscribe():
 
     return redirect(url_for("index"))
 
+
+@app.route("/test-ui")
+def test_ui():
+    return "<h1 style='color:red'>UI TEST WORKING</h1>"
+
+
 # ==============================
 # AI AGENT ROUTE
 # ==============================
