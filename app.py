@@ -223,13 +223,19 @@ def check_verified(job):
     ])
 
 
-def jobs_to_dicts(rows):
-    result = []
-    for row in rows:
-        d = dict(row)
-        d["verified"] = check_verified(d)
-        result.append(d)
-    return result
+def job_status(job):
+    if not job["deadline"]:
+        return "open", None
+
+    today = date.today()
+    deadline = job["deadline"]
+
+    days_left = (deadline - today).days
+
+    if days_left < 0:
+        return "closed", 0
+
+    return "open", days_left
 
 
 def jobs_to_dicts(rows):
