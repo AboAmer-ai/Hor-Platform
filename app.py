@@ -442,7 +442,8 @@ def post_job():
             title, description, budget, currency, category, employer,
             wa_digits, email, ph_digits, website, location, deadline
         ))
-            print("DEADLINE VALUE:", deadline)
+        
+        print("DEADLINE VALUE:", deadline)
 
         try:
             send_new_job_email(title, category, location)
