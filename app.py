@@ -17,6 +17,7 @@ from dotenv import load_dotenv
 load_dotenv()
 from flask import request, jsonify
 from flask import session
+from datetime import date
 
 app = Flask(__name__)
 
@@ -144,6 +145,12 @@ def init_db():
         status TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
+    """)
+
+    # ✅ إضافة عمود deadline إذا غير موجود
+    cur.execute("""
+        ALTER TABLE jobs
+        ADD COLUMN IF NOT EXISTS deadline DATE;
     """)
 
     cur.execute("""
