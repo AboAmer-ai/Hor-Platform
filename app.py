@@ -232,19 +232,21 @@ def jobs_to_dicts(rows):
     return result
 
 
-def job_status(job):
-    if not job["deadline"]:
-        return "open", None
+def jobs_to_dicts(rows):
+    result = []
+    for row in rows:
+        d = dict(row)
 
-    today = date.today()
-    deadline = job["deadline"]
+        d["verified"] = check_verified(d)
 
-    days_left = (deadline - today).days
+        # حالة الوظيفة حسب الموعد النهائي
+        status, days_left = job_status(d)
+        d["display_status"] = status
+        d["days_left"] = days_left
 
-    if days_left < 0:
-        return "closed", 0
+        result.append(d)
 
-    return "open", days_left
+    return result
 # ─────────────────────────────
 # ROUTES (بدون أي تغيير)
 # ─────────────────────────────
