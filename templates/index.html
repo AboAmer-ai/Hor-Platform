@@ -107,6 +107,17 @@
 
             <!-- Title & description -->
             <h3 class="job-title">{{ job.title }}</h3>
+
+              {% if job.display_status == "open" %}
+    <span class="open">✅ مفتوحة</span>
+
+    {% if job.days_left is not none %}
+        <small>متبقي {{ job.days_left }} يوم</small>
+    {% endif %}
+
+{% else %}
+    <span class="closed">🔒 مغلقة</span>
+{% endif %}
             <p class="job-desc">{{ job.description }}</p>
 
             <!-- Employer & location -->

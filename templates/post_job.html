@@ -148,16 +148,5 @@
     </form>
   </div>
 </div>
-
-{% if job.display_status == "open" %}
-    <span class="open">✅ مفتوحة</span>
-
-    {% if job.days_left is not none %}
-        <small>متبقي {{ job.days_left }} يوم</small>
-    {% endif %}
-
-{% else %}
-    <span class="closed">🔒 مغلقة</span>
-{% endif %}
 {% endblock %}
 
