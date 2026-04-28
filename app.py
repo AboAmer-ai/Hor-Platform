@@ -232,6 +232,19 @@ def jobs_to_dicts(rows):
     return result
 
 
+def job_status(job):
+    if not job["deadline"]:
+        return "open", None
+
+    today = date.today()
+    deadline = job["deadline"]
+
+    days_left = (deadline - today).days
+
+    if days_left < 0:
+        return "closed", 0
+
+    return "open", days_left
 # ─────────────────────────────
 # ROUTES (بدون أي تغيير)
 # ─────────────────────────────
@@ -239,16 +252,30 @@ def jobs_to_dicts(rows):
 def index():
     cat = request.args.get("category", "")
 
-    total_jobs = query("SELECT COUNT(*) FROM jobs", fetchone=True)["count"]
+    total_jobs = query(
+        "SELECT COUNT(*) FROM jobs WHERE status='active'",
+        fetchone=True
+    )["count"]
 
     if cat:
         rows = query(
-            "SELECT * FROM jobs WHERE category=%s ORDER BY id DESC",
+            """
+            SELECT * FROM jobs
+            WHERE category=%s AND status='active'
+            ORDER BY id DESC
+            """,
             (cat,),
             fetchall=True
         )
     else:
-        rows = query("SELECT * FROM jobs ORDER BY id DESC", fetchall=True)
+        rows = query(
+            """
+            SELECT * FROM jobs
+            WHERE status='active'
+            ORDER BY id DESC
+            """,
+            fetchall=True
+        )
 
     jobs = jobs_to_dicts(rows)
 
@@ -370,6 +397,7 @@ def post_job():
         location = request.form.get("location", "").strip()
         website = request.form.get("website", "").strip()
         email = request.form.get("email", "").strip()
+        deadline = request.form.get("deadline")
 
         wa_code = request.form.get("wa_code", "+966")
         wa_local = request.form.get("wa_local", "").strip()
@@ -393,6 +421,8 @@ def post_job():
             errors.append("تصنيف غير صحيح.")
         if not employer:
             errors.append("اسم صاحب العمل مطلوب.")
+        if not deadline:
+            errors.append("تاريخ انتهاء التقديم مطلوب.")
 
         if errors:
             for e in errors:
@@ -406,11 +436,11 @@ def post_job():
         query("""
             INSERT INTO jobs
             (title,description,budget,currency,category,employer,
-             whatsapp,email,phone,website,location,status)
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,'active')
+             whatsapp,email,phone,website,location,status,deadline)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,'active',%s)
         """, (
             title, description, budget, currency, category, employer,
-            wa_digits, email, ph_digits, website, location
+            wa_digits, email, ph_digits, website, location, deadline
         ))
         
         try:
